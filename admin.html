@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
   <meta charset="UTF-8">
@@ -11,19 +12,26 @@
 
   <title>Admin Dashboard - Digital Store</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
 
   <script src="config.js"></script>
 
 </head>
 
+
 <body>
 
-  <!-- =========================================
+
+  <!-- =====================================
        HEADER
-  ========================================== -->
+  ====================================== -->
 
   <header class="admin-header">
 
@@ -34,7 +42,7 @@
       </h1>
 
       <p>
-        Manage your products and payments
+        Manage your store
       </p>
 
     </div>
@@ -50,12 +58,15 @@
   </header>
 
 
-  <main class="admin-container">
+
+  <main
+    class="admin-container"
+  >
 
 
-    <!-- =========================================
+    <!-- =====================================
          LOGIN
-    ========================================== -->
+    ====================================== -->
 
     <section
       id="loginSection"
@@ -68,6 +79,7 @@
 
 
       <form id="loginForm">
+
 
         <input
           type="email"
@@ -85,9 +97,12 @@
         >
 
 
-        <button type="submit">
+        <button
+          type="submit"
+        >
           Login
         </button>
+
 
       </form>
 
@@ -98,9 +113,9 @@
 
 
 
-    <!-- =========================================
+    <!-- =====================================
          DASHBOARD
-    ========================================== -->
+    ====================================== -->
 
     <section
       id="dashboardSection"
@@ -108,9 +123,10 @@
     >
 
 
-      <!-- =====================================
+
+      <!-- =================================
            PAYMENT SETTINGS
-      ====================================== -->
+      ================================== -->
 
       <div class="admin-card">
 
@@ -118,87 +134,91 @@
           💳 Payment Settings
         </h2>
 
+
         <p>
-          Enter the payment details that customers
-          will see during checkout.
+          These details will appear automatically
+          on the customer checkout page.
         </p>
 
 
-        <form id="paymentSettingsForm">
+        <form
+          id="paymentSettingsForm"
+        >
 
 
-          <label>
-            Easypaisa Number
-          </label>
+          <h3>
+            Easypaisa
+          </h3>
+
+
+          <input
+            type="text"
+            id="easypaisaName"
+            placeholder="Easypaisa Account Name"
+          >
+
 
           <input
             type="text"
             id="easypaisaNumber"
-            placeholder="03XXXXXXXXX"
+            placeholder="Easypaisa Account Number"
           >
 
 
-          <label>
-            JazzCash Number
-          </label>
+
+          <h3>
+            JazzCash
+          </h3>
+
+
+          <input
+            type="text"
+            id="jazzcashName"
+            placeholder="JazzCash Account Name"
+          >
+
 
           <input
             type="text"
             id="jazzcashNumber"
-            placeholder="03XXXXXXXXX"
+            placeholder="JazzCash Account Number"
           >
-
-
-          <label>
-            Account Name
-          </label>
-
-          <input
-            type="text"
-            id="paymentAccountName"
-            placeholder="Your Name"
-          >
-
-
-          <label>
-            Payment Instructions
-          </label>
-
-          <textarea
-            id="paymentInstructions"
-            rows="5"
-            placeholder="Send the exact product amount to the above number and keep your transaction ID."
-          ></textarea>
 
 
           <button
             type="submit"
-            id="savePaymentSettings"
           >
-            Save Payment Settings
+            💾 Save Payment Details
           </button>
 
 
-          <p id="paymentSettingsMessage"></p>
-
         </form>
+
+
+        <p
+          id="paymentSettingsMessage"
+        ></p>
+
 
       </div>
 
 
 
-      <!-- =====================================
+      <!-- =================================
            ADD PRODUCT
-      ====================================== -->
+      ================================== -->
 
       <div class="admin-card">
 
+
         <h2>
-          Add New Product
+          ➕ Add New Product
         </h2>
 
 
-        <form id="productForm">
+        <form
+          id="productForm"
+        >
 
 
           <input
@@ -259,7 +279,9 @@
           >
 
 
-          <label class="checkbox-row">
+          <label
+            class="checkbox-row"
+          >
 
             <input
               type="checkbox"
@@ -271,29 +293,80 @@
           </label>
 
 
-          <button type="submit">
+          <button
+            type="submit"
+          >
             Add Product
           </button>
+
 
         </form>
 
 
-        <p id="productMessage"></p>
+        <p
+          id="productMessage"
+        ></p>
+
 
       </div>
 
 
 
-      <!-- =====================================
-           PRODUCTS
-      ====================================== -->
+      <!-- =================================
+           ORDERS
+      ================================== -->
 
       <div class="admin-card">
 
-        <div class="admin-products-header">
+
+        <div
+          class="admin-products-header"
+        >
 
           <h2>
-            My Products
+            🛒 Received Orders
+          </h2>
+
+
+          <button
+            type="button"
+            id="refreshOrders"
+          >
+            Refresh Orders
+          </button>
+
+
+        </div>
+
+
+        <div
+          id="adminOrders"
+        >
+
+          <p>
+            Loading orders...
+          </p>
+
+        </div>
+
+
+      </div>
+
+
+
+      <!-- =================================
+           PRODUCTS
+      ================================== -->
+
+      <div class="admin-card">
+
+
+        <div
+          class="admin-products-header"
+        >
+
+          <h2>
+            📦 My Products
           </h2>
 
 
@@ -304,10 +377,13 @@
             Refresh
           </button>
 
+
         </div>
 
 
-        <div id="adminProducts">
+        <div
+          id="adminProducts"
+        >
 
           <p>
             Loading products...
@@ -315,296 +391,20 @@
 
         </div>
 
+
       </div>
 
 
     </section>
 
+
   </main>
 
 
 
-  <!-- =========================================
-       EXISTING ADMIN JS
-  ========================================== -->
-
   <script src="admin.js"></script>
 
 
-
-  <!-- =========================================
-       PAYMENT SETTINGS JS
-  ========================================== -->
-
-  <script>
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      function () {
-
-        loadPaymentSettings();
-
-
-        const form =
-          document.getElementById(
-            "paymentSettingsForm"
-          );
-
-
-        if (!form) {
-          return;
-        }
-
-
-        form.addEventListener(
-          "submit",
-          savePaymentSettings
-        );
-
-      }
-    );
-
-
-
-    // ==========================================
-    // LOAD PAYMENT SETTINGS
-    // ==========================================
-
-    async function loadPaymentSettings() {
-
-      try {
-
-        const {
-          data,
-          error
-        } =
-          await supabaseClient
-            .from("payment_settings")
-            .select("*")
-            .eq("id", 1)
-            .maybeSingle();
-
-
-        if (error) {
-          throw error;
-        }
-
-
-        if (!data) {
-          return;
-        }
-
-
-        document.getElementById(
-          "easypaisaNumber"
-        ).value =
-          data.easypaisa_number || "";
-
-
-        document.getElementById(
-          "jazzcashNumber"
-        ).value =
-          data.jazzcash_number || "";
-
-
-        document.getElementById(
-          "paymentAccountName"
-        ).value =
-          data.account_name || "";
-
-
-        document.getElementById(
-          "paymentInstructions"
-        ).value =
-          data.instructions || "";
-
-
-      } catch (error) {
-
-        console.error(
-          "Payment settings loading error:",
-          error
-        );
-
-      }
-
-    }
-
-
-
-    // ==========================================
-    // SAVE PAYMENT SETTINGS
-    // ==========================================
-
-    async function savePaymentSettings(event) {
-
-      event.preventDefault();
-
-
-      const button =
-        document.getElementById(
-          "savePaymentSettings"
-        );
-
-
-      const message =
-        document.getElementById(
-          "paymentSettingsMessage"
-        );
-
-
-      const easypaisa =
-        document.getElementById(
-          "easypaisaNumber"
-        ).value.trim();
-
-
-      const jazzcash =
-        document.getElementById(
-          "jazzcashNumber"
-        ).value.trim();
-
-
-      const accountName =
-        document.getElementById(
-          "paymentAccountName"
-        ).value.trim();
-
-
-      const instructions =
-        document.getElementById(
-          "paymentInstructions"
-        ).value.trim();
-
-
-      button.disabled = true;
-
-      button.textContent =
-        "Saving...";
-
-
-      message.textContent = "";
-
-
-      try {
-
-        const {
-          data: existing,
-          error: findError
-        } =
-          await supabaseClient
-            .from("payment_settings")
-            .select("id")
-            .eq("id", 1)
-            .maybeSingle();
-
-
-        if (findError) {
-          throw findError;
-        }
-
-
-        let result;
-
-
-        if (existing) {
-
-          result =
-            await supabaseClient
-              .from("payment_settings")
-              .update({
-
-                easypaisa_number:
-                  easypaisa,
-
-                jazzcash_number:
-                  jazzcash,
-
-                account_name:
-                  accountName,
-
-                instructions:
-                  instructions,
-
-                updated_at:
-                  new Date().toISOString()
-
-              })
-              .eq("id", 1);
-
-        } else {
-
-          result =
-            await supabaseClient
-              .from("payment_settings")
-              .insert({
-
-                id: 1,
-
-                easypaisa_number:
-                  easypaisa,
-
-                jazzcash_number:
-                  jazzcash,
-
-                account_name:
-                  accountName,
-
-                instructions:
-                  instructions
-
-              });
-
-        }
-
-
-        if (result.error) {
-          throw result.error;
-        }
-
-
-        message.textContent =
-          "✅ Payment settings saved successfully!";
-
-
-        button.textContent =
-          "Saved ✓";
-
-
-        setTimeout(
-          function () {
-
-            button.textContent =
-              "Save Payment Settings";
-
-          },
-          2000
-        );
-
-
-      } catch (error) {
-
-        console.error(error);
-
-
-        message.textContent =
-          "❌ " +
-          error.message;
-
-
-        button.textContent =
-          "Save Payment Settings";
-
-
-      } finally {
-
-        button.disabled = false;
-
-      }
-
-    }
-
-  </script>
-
 </body>
+
 </html>
