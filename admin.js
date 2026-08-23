@@ -1,3 +1,1 @@
-```javascript
-console.log("ADMIN JS WORKING");
-```
+alert("ADMIN JS OK");
