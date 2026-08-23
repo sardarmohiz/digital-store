@@ -28,10 +28,9 @@
 
 <body>
 
-
-  <!-- =====================================
+  <!-- ================================
        HEADER
-  ====================================== -->
+  ================================= -->
 
   <header class="store-header">
 
@@ -39,7 +38,7 @@
       Digital Store
     </div>
 
-    <a href="index.html">
+    <a href="./index.html">
       Home
     </a>
 
@@ -47,9 +46,9 @@
 
 
 
-  <!-- =====================================
-       PRODUCT PAGE
-  ====================================== -->
+  <!-- ================================
+       MAIN
+  ================================= -->
 
   <main class="product-page">
 
@@ -100,7 +99,7 @@
 
 
 
-        <!-- INFO -->
+        <!-- INFORMATION -->
 
         <div class="product-detail-info">
 
@@ -131,7 +130,7 @@
 
 
 
-          <!-- BUY NOW -->
+          <!-- BUY BUTTON -->
 
           <button
             id="buyButton"
@@ -170,13 +169,11 @@
         Product not found
       </h2>
 
-
-      <p>
+      <p id="errorMessage">
         This product is unavailable.
       </p>
 
-
-      <a href="index.html">
+      <a href="./index.html">
         ← Back to Store
       </a>
 
@@ -187,14 +184,17 @@
 
 
 
-  <!-- =====================================
-       PRODUCT SCRIPT
-  ====================================== -->
+  <!-- ================================
+       JAVASCRIPT
+  ================================= -->
 
   <script>
 
-    async function loadProduct() {
+    // =================================
+    // LOAD PRODUCT
+    // =================================
 
+    async function loadProduct() {
 
       const params =
         new URLSearchParams(
@@ -208,16 +208,16 @@
 
       if (!id) {
 
-        showError();
+        showError(
+          "Product ID is missing."
+        );
 
         return;
 
       }
 
 
-
       try {
-
 
         const {
           data,
@@ -231,7 +231,6 @@
             .single();
 
 
-
         if (error) {
 
           throw error;
@@ -239,26 +238,24 @@
         }
 
 
-
         if (!data) {
 
-          showError();
+          showError(
+            "Product not found."
+          );
 
           return;
 
         }
 
 
-
-        // ==================================
-        // PRODUCT INFORMATION
-        // ==================================
-
+        // =============================
+        // PRODUCT DATA
+        // =============================
 
         document.title =
           data.title +
           " - Digital Store";
-
 
 
         const image =
@@ -273,8 +270,7 @@
 
 
         image.alt =
-          data.title;
-
+          data.title || "Product";
 
 
         image.onerror =
@@ -286,12 +282,10 @@
           };
 
 
-
         document.getElementById(
           "title"
         ).textContent =
-          data.title;
-
+          data.title || "Product";
 
 
         document.getElementById(
@@ -300,13 +294,11 @@
           data.description || "";
 
 
-
         document.getElementById(
           "category"
         ).textContent =
           data.category ||
           "Digital Product";
-
 
 
         document.getElementById(
@@ -319,10 +311,9 @@
 
 
 
-        // ==================================
+        // =============================
         // BUY NOW
-        // ==================================
-
+        // =============================
 
         const buyButton =
           document.getElementById(
@@ -333,32 +324,24 @@
         buyButton.onclick =
           function () {
 
+            // DIRECT CHECKOUT URL
 
-            window.location.href =
-              "checkout.html?id=" +
+            const checkoutUrl =
+              "./checkout.html?id=" +
               encodeURIComponent(
                 data.id
               );
 
 
+            window.location.href =
+              checkoutUrl;
+
           };
 
 
-
-        buyButton.textContent =
-          "Buy Now";
-
-
-
-        buyButton.disabled =
-          false;
-
-
-
-        // ==================================
-        // SHOW PAGE
-        // ==================================
-
+        // =============================
+        // SHOW PRODUCT
+        // =============================
 
         document.getElementById(
           "loading"
@@ -374,14 +357,15 @@
 
       } catch (error) {
 
-
         console.error(
-          "Product error:",
+          "Product loading error:",
           error
         );
 
 
-        showError();
+        showError(
+          error.message
+        );
 
       }
 
@@ -389,12 +373,13 @@
 
 
 
-    // =====================================
-    // ERROR
-    // =====================================
+    // =================================
+    // SHOW ERROR
+    // =================================
 
-    function showError() {
-
+    function showError(
+      message
+    ) {
 
       document.getElementById(
         "loading"
@@ -414,13 +399,19 @@
         "block";
 
 
+      document.getElementById(
+        "errorMessage"
+      ).textContent =
+        message ||
+        "Product not found.";
+
     }
 
 
 
-    // =====================================
+    // =================================
     // START
-    // =====================================
+    // =================================
 
     loadProduct();
 
