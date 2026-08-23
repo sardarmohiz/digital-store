@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
   <meta charset="UTF-8">
@@ -11,15 +12,24 @@
 
   <title>Checkout - Digital Store</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
 
   <script src="config.js"></script>
 
 </head>
 
+
 <body>
+
+
+  <!-- HEADER -->
 
   <header class="store-header">
 
@@ -34,23 +44,39 @@
   </header>
 
 
-  <main class="checkout-page">
+
+  <main
+    style="
+      max-width:900px;
+      margin:40px auto;
+      padding:20px;
+    "
+  >
+
+
+    <!-- LOADING -->
 
     <div
       id="loading"
       style="
         text-align:center;
-        padding:60px 20px;
+        padding:50px;
       "
     >
+
       Loading checkout...
+
     </div>
 
 
-    <section
-      id="checkoutBox"
+
+    <!-- CHECKOUT -->
+
+    <div
+      id="checkout"
       style="display:none;"
     >
+
 
       <h1>
         Checkout
@@ -59,28 +85,47 @@
 
       <!-- PRODUCT -->
 
-      <div class="checkout-product">
+      <div
+        style="
+          display:flex;
+          gap:20px;
+          flex-wrap:wrap;
+          align-items:center;
+          padding:20px;
+          margin:20px 0;
+          border:1px solid #ddd;
+          border-radius:15px;
+        "
+      >
 
         <img
-          id="checkoutImage"
+          id="productImage"
           src=""
           alt="Product"
+          style="
+            width:180px;
+            height:120px;
+            object-fit:cover;
+            border-radius:10px;
+          "
         >
 
 
         <div>
 
-          <h2 id="checkoutTitle">
+          <h2 id="productTitle">
             Product
           </h2>
 
-          <p id="checkoutCategory">
+
+          <p id="productCategory">
             Digital Product
           </p>
 
-          <strong id="checkoutPrice">
+
+          <h2 id="productPrice">
             $0.00
-          </strong>
+          </h2>
 
         </div>
 
@@ -92,29 +137,31 @@
 
       <div
         style="
-          margin-top:30px;
           padding:25px;
+          margin:20px 0;
           border-radius:15px;
           background:#f5f7fa;
         "
       >
 
         <h2>
-          💳 Payment
+          💳 Manual Payment
         </h2>
 
+
         <p>
-          Send the exact product amount using
-          Easypaisa or JazzCash.
+          Send the exact product amount to one
+          of the payment numbers below.
         </p>
+
 
 
         <div
           style="
-            margin:20px 0;
-            padding:20px;
             background:white;
+            padding:20px;
             border-radius:12px;
+            margin-top:20px;
           "
         >
 
@@ -124,7 +171,7 @@
             </strong>
           </p>
 
-          <h3 id="easypaisaNumber">
+          <h3 id="easypaisa">
             Loading...
           </h3>
 
@@ -135,7 +182,7 @@
             </strong>
           </p>
 
-          <h3 id="jazzcashNumber">
+          <h3 id="jazzcash">
             Loading...
           </h3>
 
@@ -153,109 +200,637 @@
         </div>
 
 
-        <p id="paymentInstructions"></p>
+        <p
+          id="instructions"
+          style="
+            margin-top:20px;
+            white-space:pre-line;
+          "
+        ></p>
 
       </div>
 
 
 
-      <!-- CUSTOMER -->
+      <!-- CUSTOMER FORM -->
 
-      <form
-        id="checkoutForm"
-        style="margin-top:30px;"
+      <div
+        style="
+          padding:25px;
+          border:1px solid #ddd;
+          border-radius:15px;
+        "
       >
 
         <h2>
-          Your Details
+          🧾 Submit Your Order
         </h2>
 
 
-        <label>
-          Full Name
-        </label>
-
-        <input
-          id="customerName"
-          type="text"
-          placeholder="Your full name"
-          required
-        >
+        <form id="orderForm">
 
 
-        <label>
-          Email Address
-        </label>
+          <label>
+            Full Name
+          </label>
 
-        <input
-          id="customerEmail"
-          type="email"
-          placeholder="you@example.com"
-          required
-        >
-
-
-        <label>
-          Transaction ID
-        </label>
-
-        <input
-          id="transactionId"
-          type="text"
-          placeholder="Enter your Easypaisa/JazzCash transaction ID"
-          required
-        >
+          <input
+            id="customerName"
+            type="text"
+            placeholder="Your full name"
+            required
+            style="
+              width:100%;
+              box-sizing:border-box;
+              margin:8px 0 18px;
+              padding:12px;
+            "
+          >
 
 
-        <button
-          type="submit"
-          id="placeOrderButton"
-        >
-          I Have Paid — Submit Order
-        </button>
+          <label>
+            Email Address
+          </label>
+
+          <input
+            id="customerEmail"
+            type="email"
+            placeholder="you@example.com"
+            required
+            style="
+              width:100%;
+              box-sizing:border-box;
+              margin:8px 0 18px;
+              padding:12px;
+            "
+          >
+
+
+          <label>
+            Transaction ID
+          </label>
+
+          <input
+            id="transactionId"
+            type="text"
+            placeholder="Easypaisa/JazzCash Transaction ID"
+            required
+            style="
+              width:100%;
+              box-sizing:border-box;
+              margin:8px 0 18px;
+              padding:12px;
+            "
+          >
+
+
+          <button
+            type="submit"
+            id="submitOrder"
+            style="
+              padding:14px 25px;
+              cursor:pointer;
+            "
+          >
+            I Have Paid — Submit Order
+          </button>
+
+
+        </form>
 
 
         <div
-          id="checkoutMessage"
-          style="margin-top:20px;"
+          id="message"
+          style="
+            margin-top:20px;
+          "
         ></div>
 
-      </form>
+      </div>
 
-    </section>
+
+    </div>
 
 
 
     <!-- ERROR -->
 
-    <section
-      id="checkoutError"
+    <div
+      id="error"
       style="
         display:none;
         text-align:center;
-        padding:60px 20px;
+        padding:50px;
       "
     >
 
       <h2>
-        Unable to load product
+        ❌ Checkout Error
       </h2>
 
-      <p>
-        Please return to the store.
+
+      <p id="errorMessage">
+        Unable to load checkout.
       </p>
+
 
       <a href="index.html">
         ← Back to Store
       </a>
 
-    </section>
+    </div>
+
 
   </main>
 
 
 
-  <script src="checkout.js"></script>
+  <script>
+
+    let product = null;
+
+
+    // ==================================
+    // LOAD CHECKOUT
+    // ==================================
+
+    async function loadCheckout() {
+
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const id =
+        params.get("id");
+
+
+      if (!id) {
+
+        showError(
+          "Product ID is missing."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+
+        // PRODUCT
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .from("products")
+            .select("*")
+            .eq("id", id)
+            .eq("published", true)
+            .single();
+
+
+        if (error) {
+
+          throw error;
+
+        }
+
+
+        if (!data) {
+
+          showError(
+            "Product not found."
+          );
+
+          return;
+
+        }
+
+
+        product = data;
+
+
+        // PRODUCT DISPLAY
+
+        document.title =
+          "Checkout - " +
+          data.title;
+
+
+        document.getElementById(
+          "productImage"
+        ).src =
+          data.image_url ||
+          "https://via.placeholder.com/600x400?text=Product";
+
+
+        document.getElementById(
+          "productTitle"
+        ).textContent =
+          data.title;
+
+
+        document.getElementById(
+          "productCategory"
+        ).textContent =
+          data.category ||
+          "Digital Product";
+
+
+        document.getElementById(
+          "productPrice"
+        ).textContent =
+          "$" +
+          Number(
+            data.price || 0
+          ).toFixed(2);
+
+
+        // PAYMENT SETTINGS
+
+        const {
+          data: payment,
+          error: paymentError
+        } =
+          await supabaseClient
+            .from("payment_settings")
+            .select("*")
+            .eq("id", 1)
+            .maybeSingle();
+
+
+        if (paymentError) {
+
+          console.error(
+            paymentError
+          );
+
+        }
+
+
+        if (payment) {
+
+          document.getElementById(
+            "easypaisa"
+          ).textContent =
+            payment.easypaisa_number ||
+            "Not configured";
+
+
+          document.getElementById(
+            "jazzcash"
+          ).textContent =
+            payment.jazzcash_number ||
+            "Not configured";
+
+
+          document.getElementById(
+            "accountName"
+          ).textContent =
+            payment.account_name ||
+            "Not configured";
+
+
+          document.getElementById(
+            "instructions"
+          ).textContent =
+            payment.instructions ||
+            "Send the exact amount and keep your transaction ID.";
+
+        } else {
+
+          document.getElementById(
+            "easypaisa"
+          ).textContent =
+            "Not configured";
+
+
+          document.getElementById(
+            "jazzcash"
+          ).textContent =
+            "Not configured";
+
+
+          document.getElementById(
+            "accountName"
+          ).textContent =
+            "Not configured";
+
+
+          document.getElementById(
+            "instructions"
+          ).textContent =
+            "Payment settings have not been configured yet.";
+
+        }
+
+
+        // SHOW
+
+        document.getElementById(
+          "loading"
+        ).style.display =
+          "none";
+
+
+        document.getElementById(
+          "checkout"
+        ).style.display =
+          "block";
+
+
+      } catch (error) {
+
+
+        console.error(
+          "Checkout error:",
+          error
+        );
+
+
+        showError(
+          error.message
+        );
+
+      }
+
+    }
+
+
+
+    // ==================================
+    // SUBMIT ORDER
+    // ==================================
+
+    document
+      .getElementById("orderForm")
+      .addEventListener(
+        "submit",
+        async function(event) {
+
+
+          event.preventDefault();
+
+
+          if (!product) {
+
+            return;
+
+          }
+
+
+          const name =
+            document
+              .getElementById(
+                "customerName"
+              )
+              .value
+              .trim();
+
+
+          const email =
+            document
+              .getElementById(
+                "customerEmail"
+              )
+              .value
+              .trim();
+
+
+          const transactionId =
+            document
+              .getElementById(
+                "transactionId"
+              )
+              .value
+              .trim();
+
+
+          const button =
+            document.getElementById(
+              "submitOrder"
+            );
+
+
+          const message =
+            document.getElementById(
+              "message"
+            );
+
+
+          if (!name) {
+
+            message.innerHTML =
+              "❌ Please enter your name.";
+
+            return;
+
+          }
+
+
+          if (!email) {
+
+            message.innerHTML =
+              "❌ Please enter your email.";
+
+            return;
+
+          }
+
+
+          if (!transactionId) {
+
+            message.innerHTML =
+              "❌ Please enter your transaction ID.";
+
+            return;
+
+          }
+
+
+          button.disabled =
+            true;
+
+
+          button.textContent =
+            "Submitting...";
+
+
+          try {
+
+
+            const orderId =
+              "DS-" +
+              Date.now() +
+              "-" +
+              Math.random()
+                .toString(36)
+                .substring(2,8)
+                .toUpperCase();
+
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .from("orders")
+                .insert({
+
+                  order_id:
+                    orderId,
+
+                  product_id:
+                    product.id,
+
+                  customer_name:
+                    name,
+
+                  customer_email:
+                    email,
+
+                  amount:
+                    Number(
+                      product.price || 0
+                    ),
+
+                  transaction_id:
+                    transactionId,
+
+                  payment_status:
+                    "pending",
+
+                  order_status:
+                    "pending"
+
+                });
+
+
+            if (error) {
+
+              throw error;
+
+            }
+
+
+            message.innerHTML = `
+
+              <div
+                style="
+                  padding:20px;
+                  background:#ecfdf5;
+                  border-radius:12px;
+                "
+              >
+
+                <h3>
+                  ✅ Order Submitted
+                </h3>
+
+                <p>
+                  Your order has been received.
+                </p>
+
+                <p>
+                  <strong>
+                    Order ID:
+                  </strong>
+                  ${orderId}
+                </p>
+
+                <p>
+                  Payment will be verified manually.
+                </p>
+
+              </div>
+
+            `;
+
+
+            button.textContent =
+              "Order Submitted ✓";
+
+
+            button.disabled =
+              true;
+
+
+          } catch (error) {
+
+
+            console.error(
+              error
+            );
+
+
+            message.innerHTML =
+              "❌ " +
+              error.message;
+
+
+            button.disabled =
+              false;
+
+
+            button.textContent =
+              "I Have Paid — Submit Order";
+
+          }
+
+        }
+      );
+
+
+
+    // ==================================
+    // ERROR
+    // ==================================
+
+    function showError(
+      text
+    ) {
+
+
+      document.getElementById(
+        "loading"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "checkout"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "error"
+      ).style.display =
+        "block";
+
+
+      document.getElementById(
+        "errorMessage"
+      ).textContent =
+        text ||
+        "Unable to load checkout.";
+
+    }
+
+
+
+    // START
+
+    loadCheckout();
+
+  </script>
+
 
 </body>
+
 </html>
