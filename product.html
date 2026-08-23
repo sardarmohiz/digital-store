@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Product - Digital Store</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+
+  <header class="store-header">
+
+    <div class="store-logo">
+      Digital Store
+    </div>
+
+    <a href="index.html">
+      Home
+    </a>
+
+  </header>
+
+
+  <!-- PRODUCT -->
+
+  <main class="product-page">
+
+    <div id="productLoading">
+      Loading product...
+    </div>
+
+    <div
+      id="productContainer"
+      style="display:none;"
+    >
+
+      <div class="product-detail">
+
+        <!-- IMAGE -->
+
+        <div class="product-detail-image">
+
+          <img
+            id="productImage"
+            src=""
+            alt="Product"
+          >
+
+        </div>
+
+
+        <!-- INFORMATION -->
+
+        <div class="product-detail-info">
+
+          <span
+            id="productCategory"
+            class="product-category"
+          ></span>
+
+          <h1 id="productTitle">
+            Product
+          </h1>
+
+          <p
+            id="productDescription"
+            class="product-description"
+          ></p>
+
+          <div
+            id="productPrice"
+            class="product-price"
+          >
+            $0.00
+          </div>
+
+
+          <!-- BUY BUTTON -->
+
+          <button
+            id="buyButton"
+            class="buy-button"
+            type="button"
+          >
+            Buy Now
+          </button>
+
+
+          <p class="secure-note">
+            🔒 Secure digital product delivery
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div
+      id="productError"
+      style="display:none;"
+    >
+
+      <h2>
+        Product not found
+      </h2>
+
+      <p>
+        This product may have been removed
+        or is no longer available.
+      </p>
+
+      <a href="index.html">
+        ← Back to Store
+      </a>
+
+    </div>
+
+  </main>
+
+
+  <script src="product.js"></script>
+
+</body>
+</html>
