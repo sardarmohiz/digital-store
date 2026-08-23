@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Checkout - Digital Store</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="config.js"></script>
+
+</head>
+
+<body>
+
+  <header class="store-header">
+
+    <div class="store-logo">
+      Digital Store
+    </div>
+
+    <a href="index.html">
+      Home
+    </a>
+
+  </header>
+
+
+  <main class="checkout-page">
+
+    <div
+      id="loading"
+      style="
+        text-align:center;
+        padding:60px 20px;
+      "
+    >
+      Loading checkout...
+    </div>
+
+
+    <section
+      id="checkoutBox"
+      style="display:none;"
+    >
+
+      <h1>
+        Checkout
+      </h1>
+
+
+      <!-- PRODUCT -->
+
+      <div class="checkout-product">
+
+        <img
+          id="checkoutImage"
+          src=""
+          alt="Product"
+        >
+
+
+        <div>
+
+          <h2 id="checkoutTitle">
+            Product
+          </h2>
+
+          <p id="checkoutCategory">
+            Digital Product
+          </p>
+
+          <strong id="checkoutPrice">
+            $0.00
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- PAYMENT -->
+
+      <div
+        style="
+          margin-top:30px;
+          padding:25px;
+          border-radius:15px;
+          background:#f5f7fa;
+        "
+      >
+
+        <h2>
+          💳 Payment
+        </h2>
+
+        <p>
+          Send the exact product amount using
+          Easypaisa or JazzCash.
+        </p>
+
+
+        <div
+          style="
+            margin:20px 0;
+            padding:20px;
+            background:white;
+            border-radius:12px;
+          "
+        >
+
+          <p>
+            <strong>
+              Easypaisa
+            </strong>
+          </p>
+
+          <h3 id="easypaisaNumber">
+            Loading...
+          </h3>
+
+
+          <p>
+            <strong>
+              JazzCash
+            </strong>
+          </p>
+
+          <h3 id="jazzcashNumber">
+            Loading...
+          </h3>
+
+
+          <p>
+            <strong>
+              Account Name
+            </strong>
+          </p>
+
+          <h3 id="accountName">
+            Loading...
+          </h3>
+
+        </div>
+
+
+        <p id="paymentInstructions"></p>
+
+      </div>
+
+
+
+      <!-- CUSTOMER -->
+
+      <form
+        id="checkoutForm"
+        style="margin-top:30px;"
+      >
+
+        <h2>
+          Your Details
+        </h2>
+
+
+        <label>
+          Full Name
+        </label>
+
+        <input
+          id="customerName"
+          type="text"
+          placeholder="Your full name"
+          required
+        >
+
+
+        <label>
+          Email Address
+        </label>
+
+        <input
+          id="customerEmail"
+          type="email"
+          placeholder="you@example.com"
+          required
+        >
+
+
+        <label>
+          Transaction ID
+        </label>
+
+        <input
+          id="transactionId"
+          type="text"
+          placeholder="Enter your Easypaisa/JazzCash transaction ID"
+          required
+        >
+
+
+        <button
+          type="submit"
+          id="placeOrderButton"
+        >
+          I Have Paid — Submit Order
+        </button>
+
+
+        <div
+          id="checkoutMessage"
+          style="margin-top:20px;"
+        ></div>
+
+      </form>
+
+    </section>
+
+
+
+    <!-- ERROR -->
+
+    <section
+      id="checkoutError"
+      style="
+        display:none;
+        text-align:center;
+        padding:60px 20px;
+      "
+    >
+
+      <h2>
+        Unable to load product
+      </h2>
+
+      <p>
+        Please return to the store.
+      </p>
+
+      <a href="index.html">
+        ← Back to Store
+      </a>
+
+    </section>
+
+  </main>
+
+
+
+  <script src="checkout.js"></script>
+
+</body>
+</html>
