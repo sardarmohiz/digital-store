@@ -1,4 +1,6 @@
-// admin.js
+// =====================================
+// DIGITAL STORE ADMIN
+// =====================================
 
 const loginSection =
   document.getElementById("loginSection");
@@ -27,6 +29,20 @@ const logoutBtn =
 const refreshProducts =
   document.getElementById("refreshProducts");
 
+
+// =====================================
+// PAYMENT SETTINGS ELEMENTS
+// =====================================
+
+const paymentSettingsForm =
+  document.getElementById(
+    "paymentSettingsForm"
+  );
+
+const paymentSettingsMessage =
+  document.getElementById(
+    "paymentSettingsMessage"
+  );
 
 
 // =====================================
@@ -64,7 +80,6 @@ async function checkLogin() {
   }
 
 }
-
 
 
 // =====================================
@@ -127,7 +142,6 @@ loginForm?.addEventListener(
 );
 
 
-
 // =====================================
 // LOGOUT
 // =====================================
@@ -142,7 +156,6 @@ logoutBtn?.addEventListener(
 
   }
 );
-
 
 
 // =====================================
@@ -169,7 +182,6 @@ function showLogin() {
 }
 
 
-
 // =====================================
 // SHOW DASHBOARD
 // =====================================
@@ -194,10 +206,9 @@ async function showDashboard() {
 
   await loadProducts();
 
-  await loadOrders();
+  await loadPaymentSettings();
 
 }
-
 
 
 // =====================================
@@ -216,7 +227,6 @@ productForm?.addEventListener(
 
 
     try {
-
 
       const title =
         document
@@ -274,7 +284,9 @@ productForm?.addEventListener(
       }
 
 
-      if (!Number.isFinite(price)) {
+      if (
+        !Number.isFinite(price)
+      ) {
 
         throw new Error(
           "Enter a valid price."
@@ -283,7 +295,9 @@ productForm?.addEventListener(
       }
 
 
-      if (!imageInput.files.length) {
+      if (
+        !imageInput.files.length
+      ) {
 
         throw new Error(
           "Please select a product image."
@@ -292,7 +306,9 @@ productForm?.addEventListener(
       }
 
 
-      if (!fileInput.files.length) {
+      if (
+        !fileInput.files.length
+      ) {
 
         throw new Error(
           "Please select the digital product file."
@@ -300,6 +316,10 @@ productForm?.addEventListener(
 
       }
 
+
+      // =================================
+      // UNIQUE ID
+      // =================================
 
       const unique =
         Date.now() +
@@ -309,8 +329,9 @@ productForm?.addEventListener(
           .substring(2, 8);
 
 
-
+      // =================================
       // IMAGE
+      // =================================
 
       const imageFile =
         imageInput.files[0];
@@ -374,8 +395,9 @@ productForm?.addEventListener(
         imagePublicData.publicUrl;
 
 
-
+      // =================================
       // DIGITAL FILE
+      // =================================
 
       const digitalFile =
         fileInput.files[0];
@@ -446,8 +468,9 @@ productForm?.addEventListener(
         filePublicData.publicUrl;
 
 
-
+      // =================================
       // SLUG
+      // =================================
 
       const slug =
         createSlug(title) +
@@ -455,8 +478,9 @@ productForm?.addEventListener(
         Date.now();
 
 
-
-      // DATABASE
+      // =================================
+      // SAVE PRODUCT
+      // =================================
 
       const {
         error:
@@ -518,6 +542,7 @@ productForm?.addEventListener(
 
 
         throw new Error(
+          "Database error: " +
           databaseError.message
         );
 
@@ -536,10 +561,7 @@ productForm?.addEventListener(
 
     } catch (error) {
 
-
-      console.error(
-        error
-      );
+      console.error(error);
 
 
       productMessage.textContent =
@@ -550,7 +572,6 @@ productForm?.addEventListener(
 
   }
 );
-
 
 
 // =====================================
@@ -600,7 +621,10 @@ async function loadProducts() {
   }
 
 
-  if (!data?.length) {
+  if (
+    !data ||
+    data.length === 0
+  ) {
 
     adminProducts.innerHTML =
       "<p>No products yet.</p>";
@@ -617,12 +641,6 @@ async function loadProducts() {
 
           <div
             class="admin-product"
-            style="
-              margin-bottom:20px;
-              padding:15px;
-              border:1px solid #ddd;
-              border-radius:12px;
-            "
           >
 
             <img
@@ -641,42 +659,44 @@ async function loadProducts() {
               "
             >
 
-            <h3>
-              ${escapeHTML(
-                product.title
-              )}
-            </h3>
+            <div>
 
-            <p>
-              ${escapeHTML(
-                product.description ||
-                ""
-              )}
-            </p>
+              <h3>
+                ${escapeHTML(
+                  product.title
+                )}
+              </h3>
 
-            <strong>
-              $${Number(
-                product.price || 0
-              ).toFixed(2)}
-            </strong>
+              <p>
+                ${escapeHTML(
+                  product.description ||
+                  ""
+                )}
+              </p>
 
-            <p>
-              ${
-                product.published
-                  ? "🟢 Published"
-                  : "🟡 Draft"
-              }
-            </p>
+              <strong>
+                $${Number(
+                  product.price || 0
+                ).toFixed(2)}
+              </strong>
 
-            <button
-              onclick="
-                deleteProduct(
+              <p>
+                ${
+                  product.published
+                    ? "🟢 Published"
+                    : "🟡 Draft"
+                }
+              </p>
+
+              <button
+                onclick="deleteProduct(
                   ${product.id}
-                )
-              "
-            >
-              Delete
-            </button>
+                )"
+              >
+                Delete
+              </button>
+
+            </div>
 
           </div>
 
@@ -687,14 +707,11 @@ async function loadProducts() {
 }
 
 
-
 // =====================================
 // DELETE PRODUCT
 // =====================================
 
-async function deleteProduct(
-  id
-) {
+async function deleteProduct(id) {
 
   if (
     !confirm(
@@ -735,221 +752,14 @@ async function deleteProduct(
 }
 
 
-
 // =====================================
-// LOAD ORDERS
-// =====================================
-
-async function loadOrders() {
-
-  let ordersContainer =
-    document.getElementById(
-      "adminOrders"
-    );
-
-
-  if (!ordersContainer) {
-
-    createOrdersSection();
-
-    ordersContainer =
-      document.getElementById(
-        "adminOrders"
-      );
-
-  }
-
-
-  ordersContainer.innerHTML =
-    "<p>Loading orders...</p>";
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("orders")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending:
-            false
-        }
-      );
-
-
-  if (error) {
-
-    ordersContainer.innerHTML =
-      "<p>" +
-      escapeHTML(
-        error.message
-      ) +
-      "</p>";
-
-    return;
-
-  }
-
-
-  if (!data?.length) {
-
-    ordersContainer.innerHTML =
-      "<p>No orders yet.</p>";
-
-    return;
-
-  }
-
-
-  ordersContainer.innerHTML =
-    data
-      .map(
-        order => {
-
-          const paid =
-            order.payment_status ===
-            "paid";
-
-
-          return `
-
-            <div
-              style="
-                border:1px solid #ddd;
-                border-radius:14px;
-                padding:20px;
-                margin-bottom:15px;
-              "
-            >
-
-              <h3>
-                🧾 Order
-                ${escapeHTML(
-                  order.order_id ||
-                  "N/A"
-                )}
-              </h3>
-
-              <p>
-                <strong>
-                  Customer:
-                </strong>
-                ${escapeHTML(
-                  order.customer_name ||
-                  ""
-                )}
-              </p>
-
-              <p>
-                <strong>
-                  Email:
-                </strong>
-                ${escapeHTML(
-                  order.customer_email ||
-                  ""
-                )}
-              </p>
-
-              <p>
-                <strong>
-                  Amount:
-                </strong>
-                $${Number(
-                  order.amount || 0
-                ).toFixed(2)}
-              </p>
-
-              <p>
-                <strong>
-                  Transaction ID:
-                </strong>
-                ${escapeHTML(
-                  order.transaction_id ||
-                  "Not provided"
-                )}
-              </p>
-
-              <p>
-                <strong>
-                  Payment:
-                </strong>
-
-                ${
-                  paid
-                    ? "🟢 PAID"
-                    : "🟡 PENDING"
-                }
-
-              </p>
-
-
-              ${
-                paid
-
-                  ? `
-
-                    <p>
-                      <a
-                        href="
-                          order.html?id=${encodeURIComponent(
-                            order.order_id
-                          )}
-                        "
-                        target="_blank"
-                      >
-                        📥 Open Customer Order Page
-                      </a>
-                    </p>
-
-                  `
-
-                  : `
-
-                    <button
-                      type="button"
-                      onclick="
-                        markOrderPaid(
-                          ${order.id}
-                        )
-                      "
-                      style="
-                        padding:10px 16px;
-                        cursor:pointer;
-                      "
-                    >
-                      ✅ Mark as Paid
-                    </button>
-
-                  `
-              }
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
-
-}
-
-
-
-// =====================================
-// MARK ORDER AS PAID
+// PAYMENT SETTINGS
 // =====================================
 
-async function markOrderPaid(
-  id
-) {
+async function loadPaymentSettings() {
 
   if (
-    !confirm(
-      "Have you verified that the payment was actually received?"
-    )
+    !paymentSettingsForm
   ) {
 
     return;
@@ -958,125 +768,241 @@ async function markOrderPaid(
 
 
   const {
+    data,
     error
   } =
     await supabaseClient
-      .from("orders")
-      .update({
-
-        payment_status:
-          "paid",
-
-        order_status:
-          "completed"
-
-      })
-      .eq(
-        "id",
-        id
-      );
+      .from("payment_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
 
 
   if (error) {
 
-    alert(
-      "Could not mark as paid:\n\n" +
-      error.message
-    );
+    paymentSettingsMessage.textContent =
+      "❌ " +
+      error.message;
 
     return;
 
   }
 
 
-  alert(
-    "✅ Payment marked as paid."
-  );
+  if (!data) {
 
-
-  await loadOrders();
-
-}
-
-
-
-// =====================================
-// CREATE ORDERS SECTION
-// =====================================
-
-function createOrdersSection() {
-
-  const section =
-    document.createElement(
-      "div"
-    );
-
-
-  section.className =
-    "admin-card";
-
-
-  section.style.marginTop =
-    "25px";
-
-
-  section.innerHTML = `
-
-    <div
-      style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:10px;
-      "
-    >
-
-      <h2>
-        🧾 Customer Orders
-      </h2>
-
-
-      <button
-        type="button"
-        id="refreshOrders"
-      >
-        Refresh
-      </button>
-
-    </div>
-
-
-    <div id="adminOrders">
-
-      <p>
-        Loading orders...
-      </p>
-
-    </div>
-
-  `;
-
-
-  if (dashboardSection) {
-
-    dashboardSection.appendChild(
-      section
-    );
+    return;
 
   }
 
 
-  document
-    .getElementById(
-      "refreshOrders"
-    )
-    ?.addEventListener(
-      "click",
-      loadOrders
-    );
+  document.getElementById(
+    "easypaisaName"
+  ).value =
+    data.easypaisa_name ||
+    "";
+
+
+  document.getElementById(
+    "easypaisaNumber"
+  ).value =
+    data.easypaisa_number ||
+    "";
+
+
+  document.getElementById(
+    "jazzcashName"
+  ).value =
+    data.jazzcash_name ||
+    "";
+
+
+  document.getElementById(
+    "jazzcashNumber"
+  ).value =
+    data.jazzcash_number ||
+    "";
 
 }
 
+
+// =====================================
+// SAVE PAYMENT SETTINGS
+// =====================================
+
+paymentSettingsForm?.addEventListener(
+  "submit",
+  async (e) => {
+
+    e.preventDefault();
+
+
+    paymentSettingsMessage.textContent =
+      "Saving...";
+
+
+    const easypaisaName =
+      document
+        .getElementById(
+          "easypaisaName"
+        )
+        .value
+        .trim();
+
+
+    const easypaisaNumber =
+      document
+        .getElementById(
+          "easypaisaNumber"
+        )
+        .value
+        .trim();
+
+
+    const jazzcashName =
+      document
+        .getElementById(
+          "jazzcashName"
+        )
+        .value
+        .trim();
+
+
+    const jazzcashNumber =
+      document
+        .getElementById(
+          "jazzcashNumber"
+        )
+        .value
+        .trim();
+
+
+    try {
+
+
+      // Check existing row
+
+      const {
+        data:
+          existing,
+        error:
+          findError
+      } =
+        await supabaseClient
+          .from("payment_settings")
+          .select("id")
+          .limit(1)
+          .maybeSingle();
+
+
+      if (findError) {
+
+        throw findError;
+
+      }
+
+
+      let result;
+
+
+      // =================================
+      // UPDATE
+      // =================================
+
+      if (existing) {
+
+        result =
+          await supabaseClient
+            .from(
+              "payment_settings"
+            )
+            .update({
+
+              easypaisa_name:
+                easypaisaName,
+
+              easypaisa_number:
+                easypaisaNumber,
+
+              jazzcash_name:
+                jazzcashName,
+
+              jazzcash_number:
+                jazzcashNumber,
+
+              updated_at:
+                new Date()
+                  .toISOString()
+
+            })
+            .eq(
+              "id",
+              existing.id
+            );
+
+      }
+
+
+      // =================================
+      // INSERT
+      // =================================
+
+      else {
+
+        result =
+          await supabaseClient
+            .from(
+              "payment_settings"
+            )
+            .insert({
+
+              easypaisa_name:
+                easypaisaName,
+
+              easypaisa_number:
+                easypaisaNumber,
+
+              jazzcash_name:
+                jazzcashName,
+
+              jazzcash_number:
+                jazzcashNumber,
+
+              updated_at:
+                new Date()
+                  .toISOString()
+
+            });
+
+      }
+
+
+      if (result.error) {
+
+        throw result.error;
+
+      }
+
+
+      paymentSettingsMessage.textContent =
+        "✅ Payment details saved successfully!";
+
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      paymentSettingsMessage.textContent =
+        "❌ " +
+        error.message;
+
+    }
+
+  }
+);
 
 
 // =====================================
@@ -1087,7 +1013,6 @@ refreshProducts?.addEventListener(
   "click",
   loadProducts
 );
-
 
 
 // =====================================
