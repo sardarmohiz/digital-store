@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -12,12 +13,11 @@
   <link rel="stylesheet" href="style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="config.js"></script>
 </head>
 
 <body>
-
-  <!-- HEADER -->
 
   <header class="store-header">
 
@@ -32,61 +32,69 @@
   </header>
 
 
-  <!-- PRODUCT -->
-
   <main class="product-page">
 
-    <div id="productLoading">
+    <div
+      id="loading"
+      style="
+        text-align:center;
+        padding:60px 20px;
+      "
+    >
       Loading product...
     </div>
 
+
     <div
-      id="productContainer"
+      id="product"
       style="display:none;"
     >
 
       <div class="product-detail">
 
-        <!-- IMAGE -->
-
         <div class="product-detail-image">
 
           <img
-            id="productImage"
+            id="image"
             src=""
             alt="Product"
+            style="
+              width:100%;
+              max-width:600px;
+              border-radius:15px;
+              display:block;
+            "
           >
 
         </div>
 
 
-        <!-- INFORMATION -->
-
         <div class="product-detail-info">
 
-          <span
-            id="productCategory"
+          <div
+            id="category"
             class="product-category"
-          ></span>
+          ></div>
 
-          <h1 id="productTitle">
+
+          <h1 id="title">
             Product
           </h1>
 
+
           <p
-            id="productDescription"
+            id="description"
             class="product-description"
           ></p>
 
+
           <div
-            id="productPrice"
+            id="price"
             class="product-price"
           >
             $0.00
           </div>
 
-
-          <!-- BUY BUTTON -->
 
           <button
             id="buyButton"
@@ -97,8 +105,8 @@
           </button>
 
 
-          <p class="secure-note">
-            🔒 Secure digital product delivery
+          <p>
+            🔒 Secure digital delivery
           </p>
 
         </div>
@@ -108,11 +116,13 @@
     </div>
 
 
-    <!-- ERROR -->
-
     <div
-      id="productError"
-      style="display:none;"
+      id="error"
+      style="
+        display:none;
+        text-align:center;
+        padding:60px 20px;
+      "
     >
 
       <h2>
@@ -120,8 +130,7 @@
       </h2>
 
       <p>
-        This product may have been removed
-        or is no longer available.
+        This product is unavailable.
       </p>
 
       <a href="index.html">
@@ -133,7 +142,161 @@
   </main>
 
 
-  <script src="product.js"></script>
+  <script>
+
+    async function loadProduct() {
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const id =
+        params.get("id");
+
+
+      if (!id) {
+
+        showError();
+
+        return;
+      }
+
+
+      try {
+
+        const {
+          data,
+          error
+        } = await supabaseClient
+          .from("products")
+          .select("*")
+          .eq("id", id)
+          .eq("published", true)
+          .single();
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        if (!data) {
+
+          showError();
+
+          return;
+        }
+
+
+        document.title =
+          data.title +
+          " - Digital Store";
+
+
+        document.getElementById(
+          "image"
+        ).src =
+          data.image_url ||
+          "https://via.placeholder.com/600x400?text=Product";
+
+
+        document.getElementById(
+          "image"
+        ).alt =
+          data.title;
+
+
+        document.getElementById(
+          "title"
+        ).textContent =
+          data.title;
+
+
+        document.getElementById(
+          "description"
+        ).textContent =
+          data.description || "";
+
+
+        document.getElementById(
+          "category"
+        ).textContent =
+          data.category ||
+          "Digital Product";
+
+
+        document.getElementById(
+          "price"
+        ).textContent =
+          "$" +
+          Number(
+            data.price || 0
+          ).toFixed(2);
+
+
+        document.getElementById(
+          "buyButton"
+        ).onclick = function() {
+
+          alert(
+            "Payment system will be connected next."
+          );
+
+        };
+
+
+        document.getElementById(
+          "loading"
+        ).style.display =
+          "none";
+
+
+        document.getElementById(
+          "product"
+        ).style.display =
+          "block";
+
+
+      } catch (error) {
+
+        console.error(
+          "Product error:",
+          error
+        );
+
+        showError();
+
+      }
+
+    }
+
+
+    function showError() {
+
+      document.getElementById(
+        "loading"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "product"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "error"
+      ).style.display =
+        "block";
+
+    }
+
+
+    loadProduct();
+
+  </script>
 
 </body>
 </html>
