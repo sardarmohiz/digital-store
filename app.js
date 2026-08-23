@@ -1,10 +1,16 @@
 // app.js
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadProducts();
+document.addEventListener("DOMContentLoaded", () => {
+  loadProducts();
 });
 
+
+// ========================================
+// LOAD PRODUCTS
+// ========================================
+
 async function loadProducts() {
+
   const container =
     document.getElementById("products") ||
     document.getElementById("productGrid") ||
@@ -16,97 +22,172 @@ async function loadProducts() {
   }
 
   container.innerHTML = `
-    <div style="grid-column:1/-1;text-align:center;padding:40px;">
+    <div style="width:100%;text-align:center;padding:40px;">
       Loading products...
     </div>
   `;
 
   try {
-    const { data, error } = await supabaseClient
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    const { data, error } =
+      await supabaseClient
+        .from("products")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", {
+          ascending: false
+        });
+
+    if (error) {
+      throw error;
+    }
 
     if (!data || data.length === 0) {
+
       container.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:40px;">
+        <div style="width:100%;text-align:center;padding:40px;">
           <h3>No products available</h3>
-          <p>Products will appear here when you add them.</p>
+          <p>Products will appear here soon.</p>
         </div>
       `;
+
       return;
     }
 
-    container.innerHTML = data.map(product => {
-      const image =
-        product.image_url ||
-        product.image ||
-        "https://via.placeholder.com/600x400?text=Digital+Product";
 
-      const title =
-        product.title ||
-        product.name ||
-        "Untitled Product";
+    // ========================================
+    // CREATE PRODUCT CARDS
+    // ========================================
 
-      const description =
-        product.description ||
-        product.excerpt ||
-        "";
+    container.innerHTML =
+      data.map(product => {
 
-      const price =
-        product.price !== null &&
-        product.price !== undefined
-          ? `$${product.price}`
-          : "Free";
+        const title =
+          escapeHTML(
+            product.title || "Untitled Product"
+          );
 
-      return `
-        <div class="product-card">
-          <img
-            src="${image}"
-            alt="${escapeHTML(title)}"
-            class="product-image"
-            loading="lazy"
-          >
+        const description =
+          escapeHTML(
+            product.description || ""
+          );
 
-          <div class="product-info">
-            <h3>${escapeHTML(title)}</h3>
+        const category =
+          escapeHTML(
+            product.category || "Digital"
+          );
 
-            <p>${escapeHTML(description)}</p>
+        const price =
+          Number(
+            product.price || 0
+          ).toFixed(2);
 
-            <div class="product-bottom">
-              <strong>${escapeHTML(price)}</strong>
+        const image =
+          product.image_url ||
+          "https://via.placeholder.com/600x400?text=Digital+Product";
 
-              <button
-                class="buy-btn"
-                onclick="viewProduct('${product.id}')"
+
+        return `
+
+          <article class="product-card">
+
+            <div class="product-image-wrapper">
+
+              <img
+                src="${image}"
+                alt="${title}"
+                class="product-image"
+                loading="lazy"
+                onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'"
               >
-                View Product
-              </button>
+
             </div>
-          </div>
-        </div>
-      `;
-    }).join("");
+
+
+            <div class="product-info">
+
+              <span class="product-category">
+                ${category}
+              </span>
+
+              <h3 class="product-title">
+                ${title}
+              </h3>
+
+              <p class="product-description">
+                ${description}
+              </p>
+
+
+              <div class="product-bottom">
+
+                <strong class="product-price">
+                  $${price}
+                </strong>
+
+                <button
+                  class="buy-btn"
+                  type="button"
+                  onclick="openProduct('${product.id}')"
+                >
+                  View Product
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        `;
+
+      }).join("");
 
   } catch (error) {
-    console.error("Products loading error:", error);
+
+    console.error(
+      "Products loading error:",
+      error
+    );
 
     container.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:40px;">
+      <div style="width:100%;text-align:center;padding:40px;">
         <h3>Unable to load products</h3>
-        <p>Please check your Supabase connection and products table.</p>
+        <p>
+          ${escapeHTML(
+            error.message ||
+            "Please try again."
+          )}
+        </p>
       </div>
     `;
   }
 }
 
-function viewProduct(id) {
-  window.location.href = `product.html?id=${encodeURIComponent(id)}`;
+
+// ========================================
+// OPEN PRODUCT
+// ========================================
+
+function openProduct(id) {
+
+  if (!id) {
+    console.error("Product ID missing.");
+    return;
+  }
+
+  window.location.href =
+    "product.html?id=" +
+    encodeURIComponent(id);
 }
 
+
+// ========================================
+// ESCAPE HTML
+// ========================================
+
 function escapeHTML(value) {
+
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
