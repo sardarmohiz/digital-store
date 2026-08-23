@@ -28,6 +28,7 @@ const refreshProducts =
   document.getElementById("refreshProducts");
 
 
+
 // =====================================
 // CHECK LOGIN
 // =====================================
@@ -45,7 +46,9 @@ document.addEventListener(
 async function checkLogin() {
 
   const {
-    data: { session }
+    data: {
+      session
+    }
   } =
     await supabaseClient.auth.getSession();
 
@@ -61,6 +64,7 @@ async function checkLogin() {
   }
 
 }
+
 
 
 // =====================================
@@ -123,6 +127,7 @@ loginForm?.addEventListener(
 );
 
 
+
 // =====================================
 // LOGOUT
 // =====================================
@@ -137,6 +142,7 @@ logoutBtn?.addEventListener(
 
   }
 );
+
 
 
 // =====================================
@@ -163,6 +169,7 @@ function showLogin() {
 }
 
 
+
 // =====================================
 // SHOW DASHBOARD
 // =====================================
@@ -185,15 +192,12 @@ async function showDashboard() {
   }
 
 
-  createOrdersSection();
-
-
   await loadProducts();
-
 
   await loadOrders();
 
 }
+
 
 
 // =====================================
@@ -212,6 +216,7 @@ productForm?.addEventListener(
 
 
     try {
+
 
       const title =
         document
@@ -260,10 +265,6 @@ productForm?.addEventListener(
         );
 
 
-      // =====================================
-      // VALIDATION
-      // =====================================
-
       if (!title) {
 
         throw new Error(
@@ -300,10 +301,6 @@ productForm?.addEventListener(
       }
 
 
-      // =====================================
-      // UNIQUE ID
-      // =====================================
-
       const unique =
         Date.now() +
         "-" +
@@ -312,9 +309,8 @@ productForm?.addEventListener(
           .substring(2, 8);
 
 
-      // =====================================
-      // IMAGE UPLOAD
-      // =====================================
+
+      // IMAGE
 
       const imageFile =
         imageInput.files[0];
@@ -330,7 +326,8 @@ productForm?.addEventListener(
 
 
       const {
-        error: imageUploadError
+        error:
+          imageUploadError
       } =
         await supabaseClient.storage
           .from("product-images")
@@ -338,10 +335,16 @@ productForm?.addEventListener(
             imagePath,
             imageFile,
             {
-              cacheControl: "3600",
-              upsert: false,
+
+              cacheControl:
+                "3600",
+
+              upsert:
+                false,
+
               contentType:
                 imageFile.type
+
             }
           );
 
@@ -356,12 +359,9 @@ productForm?.addEventListener(
       }
 
 
-      // =====================================
-      // IMAGE URL
-      // =====================================
-
       const {
-        data: imagePublicData
+        data:
+          imagePublicData
       } =
         supabaseClient.storage
           .from("product-images")
@@ -370,25 +370,12 @@ productForm?.addEventListener(
           );
 
 
-      if (
-        !imagePublicData ||
-        !imagePublicData.publicUrl
-      ) {
-
-        throw new Error(
-          "Could not create image URL."
-        );
-
-      }
-
-
       const imageUrl =
         imagePublicData.publicUrl;
 
 
-      // =====================================
+
       // DIGITAL FILE
-      // =====================================
 
       const digitalFile =
         fileInput.files[0];
@@ -404,7 +391,8 @@ productForm?.addEventListener(
 
 
       const {
-        error: fileUploadError
+        error:
+          fileUploadError
       } =
         await supabaseClient.storage
           .from("digital-products")
@@ -412,10 +400,16 @@ productForm?.addEventListener(
             filePath,
             digitalFile,
             {
-              cacheControl: "3600",
-              upsert: false,
+
+              cacheControl:
+                "3600",
+
+              upsert:
+                false,
+
               contentType:
                 digitalFile.type
+
             }
           );
 
@@ -437,12 +431,9 @@ productForm?.addEventListener(
       }
 
 
-      // =====================================
-      // FILE URL
-      // =====================================
-
       const {
-        data: filePublicData
+        data:
+          filePublicData
       } =
         supabaseClient.storage
           .from("digital-products")
@@ -455,9 +446,8 @@ productForm?.addEventListener(
         filePublicData.publicUrl;
 
 
-      // =====================================
+
       // SLUG
-      // =====================================
 
       const slug =
         createSlug(title) +
@@ -465,24 +455,28 @@ productForm?.addEventListener(
         Date.now();
 
 
-      // =====================================
-      // SAVE PRODUCT
-      // =====================================
+
+      // DATABASE
 
       const {
-        error: databaseError
+        error:
+          databaseError
       } =
         await supabaseClient
           .from("products")
           .insert({
 
-            title,
+            title:
+              title,
 
-            slug,
+            slug:
+              slug,
 
-            description,
+            description:
+              description,
 
-            price,
+            price:
+              price,
 
             category:
               category ||
@@ -494,7 +488,8 @@ productForm?.addEventListener(
             file_url:
               fileUrl,
 
-            featured,
+            featured:
+              featured,
 
             published:
               true,
@@ -523,7 +518,6 @@ productForm?.addEventListener(
 
 
         throw new Error(
-          "Database error: " +
           databaseError.message
         );
 
@@ -542,7 +536,10 @@ productForm?.addEventListener(
 
     } catch (error) {
 
-      console.error(error);
+
+      console.error(
+        error
+      );
 
 
       productMessage.textContent =
@@ -555,14 +552,18 @@ productForm?.addEventListener(
 );
 
 
+
 // =====================================
 // LOAD PRODUCTS
 // =====================================
 
 async function loadProducts() {
 
-  if (!adminProducts)
+  if (!adminProducts) {
+
     return;
+
+  }
 
 
   adminProducts.innerHTML =
@@ -579,7 +580,8 @@ async function loadProducts() {
       .order(
         "created_at",
         {
-          ascending: false
+          ascending:
+            false
         }
       );
 
@@ -598,10 +600,7 @@ async function loadProducts() {
   }
 
 
-  if (
-    !data ||
-    data.length === 0
-  ) {
+  if (!data?.length) {
 
     adminProducts.innerHTML =
       "<p>No products yet.</p>";
@@ -616,37 +615,31 @@ async function loadProducts() {
       .map(
         product => `
 
-        <div
-          class="admin-product"
-          style="
-            margin-bottom:20px;
-            padding:15px;
-            border:1px solid #ddd;
-            border-radius:12px;
-          "
-        >
-
-          <img
-            src="${
-              product.image_url ||
-              "https://via.placeholder.com/400x250?text=No+Image"
-            }"
-            alt="${escapeHTML(
-              product.title
-            )}"
+          <div
+            class="admin-product"
             style="
-              width:200px;
-              height:130px;
-              object-fit:cover;
-              border-radius:10px;
-            "
-            onerror="
-              this.src='https://via.placeholder.com/400x250?text=Image+Error'
+              margin-bottom:20px;
+              padding:15px;
+              border:1px solid #ddd;
+              border-radius:12px;
             "
           >
 
-
-          <div>
+            <img
+              src="${
+                product.image_url ||
+                "https://via.placeholder.com/400x250?text=No+Image"
+              }"
+              alt="${escapeHTML(
+                product.title
+              )}"
+              style="
+                width:200px;
+                height:130px;
+                object-fit:cover;
+                border-radius:10px;
+              "
+            >
 
             <h3>
               ${escapeHTML(
@@ -654,20 +647,18 @@ async function loadProducts() {
               )}
             </h3>
 
-
             <p>
               ${escapeHTML(
-                product.description || ""
+                product.description ||
+                ""
               )}
             </p>
-
 
             <strong>
               $${Number(
                 product.price || 0
               ).toFixed(2)}
             </strong>
-
 
             <p>
               ${
@@ -676,7 +667,6 @@ async function loadProducts() {
                   : "🟡 Draft"
               }
             </p>
-
 
             <button
               onclick="
@@ -690,600 +680,12 @@ async function loadProducts() {
 
           </div>
 
-        </div>
-
-      `
+        `
       )
       .join("");
 
 }
 
-
-// =====================================
-// CREATE ORDERS SECTION
-// =====================================
-
-function createOrdersSection() {
-
-  if (
-    document.getElementById(
-      "ordersSection"
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  const section =
-    document.createElement(
-      "div"
-    );
-
-
-  section.id =
-    "ordersSection";
-
-
-  section.className =
-    "admin-card";
-
-
-  section.style.marginTop =
-    "30px";
-
-
-  section.innerHTML = `
-
-    <div
-      style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:15px;
-        flex-wrap:wrap;
-      "
-    >
-
-      <h2>
-        🧾 Customer Orders
-      </h2>
-
-
-      <button
-        type="button"
-        id="refreshOrders"
-      >
-        Refresh Orders
-      </button>
-
-    </div>
-
-
-    <div
-      id="adminOrders"
-      style="margin-top:20px;"
-    >
-
-      <p>
-        Loading orders...
-      </p>
-
-    </div>
-
-  `;
-
-
-  dashboardSection.appendChild(
-    section
-  );
-
-
-  document
-    .getElementById(
-      "refreshOrders"
-    )
-    .addEventListener(
-      "click",
-      loadOrders
-    );
-
-}
-
-
-// =====================================
-// LOAD ORDERS
-// =====================================
-
-async function loadOrders() {
-
-  const ordersContainer =
-    document.getElementById(
-      "adminOrders"
-    );
-
-
-  if (!ordersContainer)
-    return;
-
-
-  ordersContainer.innerHTML =
-    "<p>Loading orders...</p>";
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("orders")
-      .select(`
-        *,
-        products (
-          title,
-          image_url
-        )
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    ordersContainer.innerHTML = `
-
-      <p style="color:red;">
-        ❌ ${escapeHTML(
-          error.message
-        )}
-      </p>
-
-    `;
-
-    return;
-
-  }
-
-
-  if (
-    !data ||
-    data.length === 0
-  ) {
-
-    ordersContainer.innerHTML = `
-
-      <div
-        style="
-          padding:25px;
-          text-align:center;
-        "
-      >
-
-        <h3>
-          No orders yet
-        </h3>
-
-        <p>
-          Customer orders will appear here.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  ordersContainer.innerHTML =
-    data
-      .map(
-        order => {
-
-          const product =
-            order.products || {};
-
-
-          const status =
-            order.payment_status ||
-            "pending";
-
-
-          const statusHTML =
-            status === "paid"
-
-              ? `
-                <span
-                  style="
-                    color:green;
-                    font-weight:bold;
-                  "
-                >
-                  🟢 PAID
-                </span>
-              `
-
-              : status === "rejected"
-
-              ? `
-                <span
-                  style="
-                    color:red;
-                    font-weight:bold;
-                  "
-                >
-                  🔴 REJECTED
-                </span>
-              `
-
-              : `
-                <span
-                  style="
-                    color:#b45309;
-                    font-weight:bold;
-                  "
-                >
-                  🟡 PENDING
-                </span>
-              `;
-
-
-          return `
-
-            <div
-              style="
-                padding:20px;
-                margin-bottom:15px;
-                border:1px solid #ddd;
-                border-radius:15px;
-                background:#fff;
-              "
-            >
-
-              <div
-                style="
-                  display:flex;
-                  gap:20px;
-                  flex-wrap:wrap;
-                "
-              >
-
-                ${
-                  product.image_url
-                    ? `
-                      <img
-                        src="${product.image_url}"
-                        alt="${escapeHTML(
-                          product.title ||
-                          "Product"
-                        )}"
-                        style="
-                          width:120px;
-                          height:80px;
-                          object-fit:cover;
-                          border-radius:10px;
-                        "
-                      >
-                    `
-                    : ""
-                }
-
-
-                <div>
-
-                  <h3>
-                    ${escapeHTML(
-                      product.title ||
-                      "Unknown Product"
-                    )}
-                  </h3>
-
-
-                  <p>
-                    <strong>
-                      Order ID:
-                    </strong>
-
-                    ${escapeHTML(
-                      order.order_id
-                    )}
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Customer:
-                    </strong>
-
-                    ${escapeHTML(
-                      order.customer_name
-                    )}
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Email:
-                    </strong>
-
-                    ${escapeHTML(
-                      order.customer_email
-                    )}
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Amount:
-                    </strong>
-
-                    $${Number(
-                      order.amount || 0
-                    ).toFixed(2)}
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Transaction ID:
-                    </strong>
-
-                    ${
-                      order.transaction_id
-                        ? escapeHTML(
-                            order.transaction_id
-                          )
-                        : "Not provided"
-                    }
-
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Payment:
-                    </strong>
-
-                    ${statusHTML}
-
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Order Status:
-                    </strong>
-
-                    ${escapeHTML(
-                      order.order_status ||
-                      "pending"
-                    )}
-
-                  </p>
-
-
-                  <p>
-                    <strong>
-                      Date:
-                    </strong>
-
-                    ${formatDate(
-                      order.created_at
-                    )}
-
-                  </p>
-
-
-                  ${
-                    status === "pending"
-                      ? `
-
-                        <div
-                          style="
-                            display:flex;
-                            gap:10px;
-                            flex-wrap:wrap;
-                            margin-top:15px;
-                          "
-                        >
-
-                          <button
-                            type="button"
-                            onclick="
-                              markOrderPaid(
-                                ${order.id}
-                              )
-                            "
-                          >
-                            ✅ Mark as Paid
-                          </button>
-
-
-                          <button
-                            type="button"
-                            onclick="
-                              rejectOrder(
-                                ${order.id}
-                              )
-                            "
-                          >
-                            ❌ Reject
-                          </button>
-
-                        </div>
-
-                      `
-                      : ""
-                  }
-
-
-                  ${
-                    status === "paid"
-                      ? `
-
-                        <div
-                          style="
-                            margin-top:15px;
-                            padding:12px;
-                            background:#ecfdf5;
-                            border-radius:10px;
-                          "
-                        >
-
-                          ✅ Payment verified.
-
-                          <br>
-
-                          Product can now be delivered
-                          to the customer.
-
-                        </div>
-
-                      `
-                      : ""
-                  }
-
-                </div>
-
-              </div>
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
-
-}
-
-
-// =====================================
-// MARK ORDER PAID
-// =====================================
-
-async function markOrderPaid(
-  orderId
-) {
-
-  if (
-    !confirm(
-      "Confirm that you received this payment?"
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("orders")
-      .update({
-
-        payment_status:
-          "paid",
-
-        order_status:
-          "paid"
-
-      })
-      .eq(
-        "id",
-        orderId
-      );
-
-
-  if (error) {
-
-    alert(
-      "Error: " +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  await loadOrders();
-
-
-  alert(
-    "✅ Order marked as PAID."
-  );
-
-}
-
-
-// =====================================
-// REJECT ORDER
-// =====================================
-
-async function rejectOrder(
-  orderId
-) {
-
-  if (
-    !confirm(
-      "Reject this payment/order?"
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("orders")
-      .update({
-
-        payment_status:
-          "rejected",
-
-        order_status:
-          "rejected"
-
-      })
-      .eq(
-        "id",
-        orderId
-      );
-
-
-  if (error) {
-
-    alert(
-      "Error: " +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  await loadOrders();
-
-
-  alert(
-    "Order rejected."
-  );
-
-}
 
 
 // =====================================
@@ -1333,6 +735,350 @@ async function deleteProduct(
 }
 
 
+
+// =====================================
+// LOAD ORDERS
+// =====================================
+
+async function loadOrders() {
+
+  let ordersContainer =
+    document.getElementById(
+      "adminOrders"
+    );
+
+
+  if (!ordersContainer) {
+
+    createOrdersSection();
+
+    ordersContainer =
+      document.getElementById(
+        "adminOrders"
+      );
+
+  }
+
+
+  ordersContainer.innerHTML =
+    "<p>Loading orders...</p>";
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("orders")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:
+            false
+        }
+      );
+
+
+  if (error) {
+
+    ordersContainer.innerHTML =
+      "<p>" +
+      escapeHTML(
+        error.message
+      ) +
+      "</p>";
+
+    return;
+
+  }
+
+
+  if (!data?.length) {
+
+    ordersContainer.innerHTML =
+      "<p>No orders yet.</p>";
+
+    return;
+
+  }
+
+
+  ordersContainer.innerHTML =
+    data
+      .map(
+        order => {
+
+          const paid =
+            order.payment_status ===
+            "paid";
+
+
+          return `
+
+            <div
+              style="
+                border:1px solid #ddd;
+                border-radius:14px;
+                padding:20px;
+                margin-bottom:15px;
+              "
+            >
+
+              <h3>
+                🧾 Order
+                ${escapeHTML(
+                  order.order_id ||
+                  "N/A"
+                )}
+              </h3>
+
+              <p>
+                <strong>
+                  Customer:
+                </strong>
+                ${escapeHTML(
+                  order.customer_name ||
+                  ""
+                )}
+              </p>
+
+              <p>
+                <strong>
+                  Email:
+                </strong>
+                ${escapeHTML(
+                  order.customer_email ||
+                  ""
+                )}
+              </p>
+
+              <p>
+                <strong>
+                  Amount:
+                </strong>
+                $${Number(
+                  order.amount || 0
+                ).toFixed(2)}
+              </p>
+
+              <p>
+                <strong>
+                  Transaction ID:
+                </strong>
+                ${escapeHTML(
+                  order.transaction_id ||
+                  "Not provided"
+                )}
+              </p>
+
+              <p>
+                <strong>
+                  Payment:
+                </strong>
+
+                ${
+                  paid
+                    ? "🟢 PAID"
+                    : "🟡 PENDING"
+                }
+
+              </p>
+
+
+              ${
+                paid
+
+                  ? `
+
+                    <p>
+                      <a
+                        href="
+                          order.html?id=${encodeURIComponent(
+                            order.order_id
+                          )}
+                        "
+                        target="_blank"
+                      >
+                        📥 Open Customer Order Page
+                      </a>
+                    </p>
+
+                  `
+
+                  : `
+
+                    <button
+                      type="button"
+                      onclick="
+                        markOrderPaid(
+                          ${order.id}
+                        )
+                      "
+                      style="
+                        padding:10px 16px;
+                        cursor:pointer;
+                      "
+                    >
+                      ✅ Mark as Paid
+                    </button>
+
+                  `
+              }
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+
+// =====================================
+// MARK ORDER AS PAID
+// =====================================
+
+async function markOrderPaid(
+  id
+) {
+
+  if (
+    !confirm(
+      "Have you verified that the payment was actually received?"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("orders")
+      .update({
+
+        payment_status:
+          "paid",
+
+        order_status:
+          "completed"
+
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (error) {
+
+    alert(
+      "Could not mark as paid:\n\n" +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "✅ Payment marked as paid."
+  );
+
+
+  await loadOrders();
+
+}
+
+
+
+// =====================================
+// CREATE ORDERS SECTION
+// =====================================
+
+function createOrdersSection() {
+
+  const section =
+    document.createElement(
+      "div"
+    );
+
+
+  section.className =
+    "admin-card";
+
+
+  section.style.marginTop =
+    "25px";
+
+
+  section.innerHTML = `
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:10px;
+      "
+    >
+
+      <h2>
+        🧾 Customer Orders
+      </h2>
+
+
+      <button
+        type="button"
+        id="refreshOrders"
+      >
+        Refresh
+      </button>
+
+    </div>
+
+
+    <div id="adminOrders">
+
+      <p>
+        Loading orders...
+      </p>
+
+    </div>
+
+  `;
+
+
+  if (dashboardSection) {
+
+    dashboardSection.appendChild(
+      section
+    );
+
+  }
+
+
+  document
+    .getElementById(
+      "refreshOrders"
+    )
+    ?.addEventListener(
+      "click",
+      loadOrders
+    );
+
+}
+
+
+
 // =====================================
 // REFRESH PRODUCTS
 // =====================================
@@ -1341,6 +1087,7 @@ refreshProducts?.addEventListener(
   "click",
   loadProducts
 );
+
 
 
 // =====================================
@@ -1352,12 +1099,10 @@ function cleanFileName(
 ) {
 
   return name
-
     .replace(
       /[^a-zA-Z0-9._-]/g,
       "-"
     )
-
     .replace(
       /-+/g,
       "-"
@@ -1371,16 +1116,12 @@ function createSlug(
 ) {
 
   return text
-
     .toLowerCase()
-
     .trim()
-
     .replace(
       /[^a-z0-9]+/g,
       "-"
     )
-
     .replace(
       /^-+|-+$/g,
       ""
@@ -1396,48 +1137,25 @@ function escapeHTML(
   return String(
     value ?? ""
   )
-
     .replace(
       /&/g,
       "&amp;"
     )
-
     .replace(
       /</g,
       "&lt;"
     )
-
     .replace(
       />/g,
       "&gt;"
     )
-
     .replace(
       /"/g,
       "&quot;"
     )
-
     .replace(
       /'/g,
       "&#039;"
     );
-
-}
-
-
-function formatDate(
-  value
-) {
-
-  if (!value) {
-
-    return "Unknown";
-
-  }
-
-
-  return new Date(
-    value
-  ).toLocaleString();
 
 }
