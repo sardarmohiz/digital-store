@@ -1,1 +1,1 @@
-alert("ADMIN JS OK");
+console.log("TEST123");
