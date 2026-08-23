@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -10,14 +12,26 @@
 
   <title>Product - Digital Store</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
 
   <script src="config.js"></script>
+
 </head>
 
+
 <body>
+
+
+  <!-- =====================================
+       HEADER
+  ====================================== -->
 
   <header class="store-header">
 
@@ -32,7 +46,15 @@
   </header>
 
 
+
+  <!-- =====================================
+       PRODUCT PAGE
+  ====================================== -->
+
   <main class="product-page">
+
+
+    <!-- LOADING -->
 
     <div
       id="loading"
@@ -41,9 +63,14 @@
         padding:60px 20px;
       "
     >
+
       Loading product...
+
     </div>
 
+
+
+    <!-- PRODUCT -->
 
     <div
       id="product"
@@ -51,6 +78,9 @@
     >
 
       <div class="product-detail">
+
+
+        <!-- IMAGE -->
 
         <div class="product-detail-image">
 
@@ -69,7 +99,11 @@
         </div>
 
 
+
+        <!-- INFO -->
+
         <div class="product-detail-info">
+
 
           <div
             id="category"
@@ -96,6 +130,9 @@
           </div>
 
 
+
+          <!-- BUY NOW -->
+
           <button
             id="buyButton"
             class="buy-button"
@@ -109,12 +146,16 @@
             🔒 Secure digital delivery
           </p>
 
+
         </div>
 
       </div>
 
     </div>
 
+
+
+    <!-- ERROR -->
 
     <div
       id="error"
@@ -129,9 +170,11 @@
         Product not found
       </h2>
 
+
       <p>
         This product is unavailable.
       </p>
+
 
       <a href="index.html">
         ← Back to Store
@@ -139,17 +182,25 @@
 
     </div>
 
+
   </main>
 
+
+
+  <!-- =====================================
+       PRODUCT SCRIPT
+  ====================================== -->
 
   <script>
 
     async function loadProduct() {
 
+
       const params =
         new URLSearchParams(
           window.location.search
         );
+
 
       const id =
         params.get("id");
@@ -160,25 +211,33 @@
         showError();
 
         return;
+
       }
+
 
 
       try {
 
+
         const {
           data,
           error
-        } = await supabaseClient
-          .from("products")
-          .select("*")
-          .eq("id", id)
-          .eq("published", true)
-          .single();
+        } =
+          await supabaseClient
+            .from("products")
+            .select("*")
+            .eq("id", id)
+            .eq("published", true)
+            .single();
+
 
 
         if (error) {
+
           throw error;
+
         }
+
 
 
         if (!data) {
@@ -186,7 +245,14 @@
           showError();
 
           return;
+
         }
+
+
+
+        // ==================================
+        // PRODUCT INFORMATION
+        // ==================================
 
 
         document.title =
@@ -194,17 +260,31 @@
           " - Digital Store";
 
 
-        document.getElementById(
-          "image"
-        ).src =
+
+        const image =
+          document.getElementById(
+            "image"
+          );
+
+
+        image.src =
           data.image_url ||
           "https://via.placeholder.com/600x400?text=Product";
 
 
-        document.getElementById(
-          "image"
-        ).alt =
+        image.alt =
           data.title;
+
+
+
+        image.onerror =
+          function () {
+
+            this.src =
+              "https://via.placeholder.com/600x400?text=Image+Error";
+
+          };
+
 
 
         document.getElementById(
@@ -213,10 +293,12 @@
           data.title;
 
 
+
         document.getElementById(
           "description"
         ).textContent =
           data.description || "";
+
 
 
         document.getElementById(
@@ -224,6 +306,7 @@
         ).textContent =
           data.category ||
           "Digital Product";
+
 
 
         document.getElementById(
@@ -235,15 +318,46 @@
           ).toFixed(2);
 
 
-        document.getElementById(
-          "buyButton"
-        ).onclick = function() {
 
-          alert(
-            "Payment system will be connected next."
+        // ==================================
+        // BUY NOW
+        // ==================================
+
+
+        const buyButton =
+          document.getElementById(
+            "buyButton"
           );
 
-        };
+
+        buyButton.onclick =
+          function () {
+
+
+            window.location.href =
+              "checkout.html?id=" +
+              encodeURIComponent(
+                data.id
+              );
+
+
+          };
+
+
+
+        buyButton.textContent =
+          "Buy Now";
+
+
+
+        buyButton.disabled =
+          false;
+
+
+
+        // ==================================
+        // SHOW PAGE
+        // ==================================
 
 
         document.getElementById(
@@ -260,10 +374,12 @@
 
       } catch (error) {
 
+
         console.error(
           "Product error:",
           error
         );
+
 
         showError();
 
@@ -272,7 +388,13 @@
     }
 
 
+
+    // =====================================
+    // ERROR
+    // =====================================
+
     function showError() {
+
 
       document.getElementById(
         "loading"
@@ -291,12 +413,20 @@
       ).style.display =
         "block";
 
+
     }
 
+
+
+    // =====================================
+    // START
+    // =====================================
 
     loadProduct();
 
   </script>
 
+
 </body>
+
 </html>
