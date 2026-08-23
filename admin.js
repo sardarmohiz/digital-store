@@ -1,38 +1,68 @@
 ```javascript
 // =====================================
-// DIGITAL STORE ADMIN - COMPLETE
+// DIGITAL STORE ADMIN
+// COMPLETE FIXED VERSION
 // =====================================
 
-const loginSection = document.getElementById("loginSection");
-const dashboardSection = document.getElementById("dashboardSection");
 
-const loginForm = document.getElementById("loginForm");
-const loginMessage = document.getElementById("loginMessage");
+// =====================================
+// ELEMENTS
+// =====================================
 
-const productForm = document.getElementById("productForm");
-const productMessage = document.getElementById("productMessage");
+const loginSection =
+  document.getElementById("loginSection");
 
-const adminProducts = document.getElementById("adminProducts");
-const adminOrders = document.getElementById("adminOrders");
+const dashboardSection =
+  document.getElementById("dashboardSection");
 
-const logoutBtn = document.getElementById("logoutBtn");
-const refreshProducts = document.getElementById("refreshProducts");
-const refreshOrders = document.getElementById("refreshOrders");
+const loginForm =
+  document.getElementById("loginForm");
+
+const loginMessage =
+  document.getElementById("loginMessage");
+
+const productForm =
+  document.getElementById("productForm");
+
+const productMessage =
+  document.getElementById("productMessage");
+
+const adminProducts =
+  document.getElementById("adminProducts");
+
+const adminOrders =
+  document.getElementById("adminOrders");
+
+const logoutBtn =
+  document.getElementById("logoutBtn");
+
+const refreshProducts =
+  document.getElementById("refreshProducts");
+
+const refreshOrders =
+  document.getElementById("refreshOrders");
 
 const paymentSettingsForm =
   document.getElementById("paymentSettingsForm");
 
 const paymentSettingsMessage =
-  document.getElementById("paymentSettingsMessage");
+  document.getElementById(
+    "paymentSettingsMessage"
+  );
 
 
 // =====================================
 // START
 // =====================================
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await checkLogin();
-});
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    await checkLogin();
+
+  }
+);
 
 
 // =====================================
@@ -47,17 +77,27 @@ async function checkLogin() {
       data: {
         session
       }
-    } = await supabaseClient.auth.getSession();
+    } =
+      await supabaseClient.auth.getSession();
+
 
     if (session) {
+
       await showDashboard();
+
     } else {
+
       showLogin();
+
     }
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Login check error:",
+      error
+    );
+
     showLogin();
 
   }
@@ -69,53 +109,94 @@ async function checkLogin() {
 // LOGIN
 // =====================================
 
-loginForm?.addEventListener("submit", async (e) => {
+loginForm?.addEventListener(
+  "submit",
+  async (e) => {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const email =
-    document.getElementById("email").value.trim();
 
-  const password =
-    document.getElementById("password").value;
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim();
 
-  loginMessage.textContent = "Logging in...";
 
-  const {
-    error
-  } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
+    const password =
+      document
+        .getElementById("password")
+        .value;
 
-  if (error) {
 
     loginMessage.textContent =
-      "❌ " + error.message;
+      "Logging in...";
 
-    return;
+
+    try {
+
+      const {
+        error
+      } =
+        await supabaseClient.auth
+          .signInWithPassword({
+
+            email,
+            password
+
+          });
+
+
+      if (error) {
+
+        throw error;
+
+      }
+
+
+      loginMessage.textContent =
+        "✅ Login successful.";
+
+
+      await showDashboard();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      loginMessage.textContent =
+        "❌ " +
+        error.message;
+
+    }
 
   }
-
-  loginMessage.textContent =
-    "✅ Login successful.";
-
-  await showDashboard();
-
-});
+);
 
 
 // =====================================
 // LOGOUT
 // =====================================
 
-logoutBtn?.addEventListener("click", async () => {
+logoutBtn?.addEventListener(
+  "click",
+  async () => {
 
-  await supabaseClient.auth.signOut();
+    try {
 
-  showLogin();
+      await supabaseClient.auth.signOut();
 
-});
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+    showLogin();
+
+  }
+);
 
 
 // =====================================
@@ -125,11 +206,18 @@ logoutBtn?.addEventListener("click", async () => {
 function showLogin() {
 
   if (loginSection) {
-    loginSection.style.display = "block";
+
+    loginSection.style.display =
+      "block";
+
   }
 
+
   if (dashboardSection) {
-    dashboardSection.style.display = "none";
+
+    dashboardSection.style.display =
+      "none";
+
   }
 
 }
@@ -142,91 +230,174 @@ function showLogin() {
 async function showDashboard() {
 
   if (loginSection) {
-    loginSection.style.display = "none";
+
+    loginSection.style.display =
+      "none";
+
   }
+
 
   if (dashboardSection) {
-    dashboardSection.style.display = "block";
+
+    dashboardSection.style.display =
+      "block";
+
   }
 
-  await loadPaymentSettings();
-  await loadProducts();
-  await loadOrders();
+
+  // IMPORTANT:
+  // One error must NOT stop the
+  // rest of the dashboard.
+
+  try {
+
+    await loadPaymentSettings();
+
+  } catch (error) {
+
+    console.error(
+      "Payment settings:",
+      error
+    );
+
+  }
+
+
+  try {
+
+    await loadProducts();
+
+  } catch (error) {
+
+    console.error(
+      "Products:",
+      error
+    );
+
+  }
+
+
+  try {
+
+    await loadOrders();
+
+  } catch (error) {
+
+    console.error(
+      "Orders:",
+      error
+    );
+
+  }
 
 }
 
 
 // =====================================
-// PAYMENT SETTINGS - LOAD
+// LOAD PAYMENT SETTINGS
 // =====================================
 
 async function loadPaymentSettings() {
 
   if (!paymentSettingsForm) {
+
     return;
+
   }
+
 
   try {
 
     const {
       data,
       error
-    } = await supabaseClient
-      .from("payment_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
+    } =
+      await supabaseClient
+        .from("payment_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+
 
     if (error) {
+
       throw error;
+
     }
+
 
     if (!data) {
+
       return;
+
     }
+
 
     const easypaisaName =
-      document.getElementById("easypaisaName");
+      document.getElementById(
+        "easypaisaName"
+      );
 
     const easypaisaNumber =
-      document.getElementById("easypaisaNumber");
+      document.getElementById(
+        "easypaisaNumber"
+      );
 
     const jazzcashName =
-      document.getElementById("jazzcashName");
+      document.getElementById(
+        "jazzcashName"
+      );
 
     const jazzcashNumber =
-      document.getElementById("jazzcashNumber");
+      document.getElementById(
+        "jazzcashNumber"
+      );
+
 
     if (easypaisaName) {
+
       easypaisaName.value =
         data.easypaisa_name || "";
+
     }
+
 
     if (easypaisaNumber) {
+
       easypaisaNumber.value =
         data.easypaisa_number || "";
+
     }
+
 
     if (jazzcashName) {
+
       jazzcashName.value =
         data.jazzcash_name || "";
+
     }
 
+
     if (jazzcashNumber) {
+
       jazzcashNumber.value =
         data.jazzcash_number || "";
+
     }
 
   } catch (error) {
 
     console.error(
-      "Payment settings error:",
+      "Payment settings load error:",
       error
     );
 
+
     if (paymentSettingsMessage) {
+
       paymentSettingsMessage.textContent =
-        "❌ " + error.message;
+        "⚠️ Payment settings could not be loaded.";
+
     }
 
   }
@@ -235,7 +406,7 @@ async function loadPaymentSettings() {
 
 
 // =====================================
-// PAYMENT SETTINGS - SAVE
+// SAVE PAYMENT SETTINGS
 // =====================================
 
 paymentSettingsForm?.addEventListener(
@@ -244,32 +415,49 @@ paymentSettingsForm?.addEventListener(
 
     e.preventDefault();
 
-    paymentSettingsMessage.textContent =
-      "Saving...";
+
+    if (paymentSettingsMessage) {
+
+      paymentSettingsMessage.textContent =
+        "Saving...";
+
+    }
+
 
     try {
 
       const easypaisaName =
         document
-          .getElementById("easypaisaName")
+          .getElementById(
+            "easypaisaName"
+          )
           .value
           .trim();
+
 
       const easypaisaNumber =
         document
-          .getElementById("easypaisaNumber")
+          .getElementById(
+            "easypaisaNumber"
+          )
           .value
           .trim();
+
 
       const jazzcashName =
         document
-          .getElementById("jazzcashName")
+          .getElementById(
+            "jazzcashName"
+          )
           .value
           .trim();
 
+
       const jazzcashNumber =
         document
-          .getElementById("jazzcashNumber")
+          .getElementById(
+            "jazzcashNumber"
+          )
           .value
           .trim();
 
@@ -277,15 +465,18 @@ paymentSettingsForm?.addEventListener(
       const {
         data: existing,
         error: findError
-      } = await supabaseClient
-        .from("payment_settings")
-        .select("id")
-        .limit(1)
-        .maybeSingle();
+      } =
+        await supabaseClient
+          .from("payment_settings")
+          .select("id")
+          .limit(1)
+          .maybeSingle();
 
 
       if (findError) {
+
         throw findError;
+
       }
 
 
@@ -312,7 +503,8 @@ paymentSettingsForm?.addEventListener(
                 jazzcashNumber,
 
               updated_at:
-                new Date().toISOString()
+                new Date()
+                  .toISOString()
 
             })
             .eq(
@@ -340,7 +532,8 @@ paymentSettingsForm?.addEventListener(
                 jazzcashNumber,
 
               updated_at:
-                new Date().toISOString()
+                new Date()
+                  .toISOString()
 
             });
 
@@ -348,19 +541,32 @@ paymentSettingsForm?.addEventListener(
 
 
       if (result.error) {
+
         throw result.error;
+
       }
 
 
-      paymentSettingsMessage.textContent =
-        "✅ Payment details saved successfully!";
+      if (paymentSettingsMessage) {
+
+        paymentSettingsMessage.textContent =
+          "✅ Payment details saved!";
+
+      }
+
 
     } catch (error) {
 
       console.error(error);
 
-      paymentSettingsMessage.textContent =
-        "❌ " + error.message;
+
+      if (paymentSettingsMessage) {
+
+        paymentSettingsMessage.textContent =
+          "❌ " +
+          error.message;
+
+      }
 
     }
 
@@ -378,70 +584,113 @@ productForm?.addEventListener(
 
     e.preventDefault();
 
-    productMessage.textContent =
-      "Uploading product...";
+
+    if (productMessage) {
+
+      productMessage.textContent =
+        "Uploading product...";
+
+    }
+
 
     try {
 
       const title =
         document
-          .getElementById("productTitle")
+          .getElementById(
+            "productTitle"
+          )
           .value
           .trim();
 
+
       const description =
         document
-          .getElementById("productDescription")
+          .getElementById(
+            "productDescription"
+          )
           .value
           .trim();
+
 
       const price =
         Number(
           document
-            .getElementById("productPrice")
+            .getElementById(
+              "productPrice"
+            )
             .value
         );
 
+
       const category =
         document
-          .getElementById("productCategory")
+          .getElementById(
+            "productCategory"
+          )
           .value
           .trim();
 
+
       const featured =
         document
-          .getElementById("featuredProduct")
+          .getElementById(
+            "featuredProduct"
+          )
           .checked;
 
+
       const imageInput =
-        document.getElementById("productImage");
+        document.getElementById(
+          "productImage"
+        );
+
 
       const fileInput =
-        document.getElementById("productFile");
+        document.getElementById(
+          "productFile"
+        );
 
 
       if (!title) {
+
         throw new Error(
           "Product title is required."
         );
+
       }
 
+
       if (!Number.isFinite(price)) {
+
         throw new Error(
           "Enter a valid price."
         );
+
       }
 
-      if (!imageInput?.files?.length) {
+
+      if (
+        !imageInput ||
+        !imageInput.files.length
+      ) {
+
         throw new Error(
           "Please select a product image."
         );
+
       }
 
-      if (!fileInput?.files?.length) {
+
+      if (
+        !fileInput ||
+        !fileInput.files.length
+      ) {
+
         throw new Error(
           "Please select the digital product file."
         );
+
       }
 
 
@@ -454,11 +703,12 @@ productForm?.addEventListener(
 
 
       // =================================
-      // IMAGE UPLOAD
+      // IMAGE
       // =================================
 
       const imageFile =
         imageInput.files[0];
+
 
       const imagePath =
         "products/" +
@@ -470,35 +720,52 @@ productForm?.addEventListener(
 
 
       const {
-        error: imageUploadError
-      } = await supabaseClient.storage
-        .from("product-images")
-        .upload(
-          imagePath,
-          imageFile,
-          {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: imageFile.type
-          }
-        );
+        error:
+          imageUploadError
+      } =
+        await supabaseClient.storage
+          .from(
+            "product-images"
+          )
+          .upload(
+            imagePath,
+            imageFile,
+            {
+
+              cacheControl:
+                "3600",
+
+              upsert:
+                false,
+
+              contentType:
+                imageFile.type
+
+            }
+          );
 
 
       if (imageUploadError) {
+
         throw new Error(
           "Image upload failed: " +
           imageUploadError.message
         );
+
       }
 
 
       const {
-        data: imagePublicData
-      } = supabaseClient.storage
-        .from("product-images")
-        .getPublicUrl(
-          imagePath
-        );
+        data:
+          imagePublicData
+      } =
+        supabaseClient.storage
+          .from(
+            "product-images"
+          )
+          .getPublicUrl(
+            imagePath
+          );
 
 
       const imageUrl =
@@ -506,11 +773,12 @@ productForm?.addEventListener(
 
 
       // =================================
-      // DIGITAL FILE UPLOAD
+      // DIGITAL FILE
       // =================================
 
       const digitalFile =
         fileInput.files[0];
+
 
       const filePath =
         "products/" +
@@ -522,27 +790,41 @@ productForm?.addEventListener(
 
 
       const {
-        error: fileUploadError
-      } = await supabaseClient.storage
-        .from("digital-products")
-        .upload(
-          filePath,
-          digitalFile,
-          {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: digitalFile.type
-          }
-        );
+        error:
+          fileUploadError
+      } =
+        await supabaseClient.storage
+          .from(
+            "digital-products"
+          )
+          .upload(
+            filePath,
+            digitalFile,
+            {
+
+              cacheControl:
+                "3600",
+
+              upsert:
+                false,
+
+              contentType:
+                digitalFile.type
+
+            }
+          );
 
 
       if (fileUploadError) {
 
         await supabaseClient.storage
-          .from("product-images")
+          .from(
+            "product-images"
+          )
           .remove([
             imagePath
           ]);
+
 
         throw new Error(
           "Digital file upload failed: " +
@@ -553,12 +835,16 @@ productForm?.addEventListener(
 
 
       const {
-        data: filePublicData
-      } = supabaseClient.storage
-        .from("digital-products")
-        .getPublicUrl(
-          filePath
-        );
+        data:
+          filePublicData
+      } =
+        supabaseClient.storage
+          .from(
+            "digital-products"
+          )
+          .getPublicUrl(
+            filePath
+          );
 
 
       const fileUrl =
@@ -566,7 +852,7 @@ productForm?.addEventListener(
 
 
       // =================================
-      // SLUG
+      // PRODUCT DATABASE
       // =================================
 
       const slug =
@@ -575,53 +861,68 @@ productForm?.addEventListener(
         Date.now();
 
 
-      // =================================
-      // SAVE PRODUCT
-      // =================================
-
       const {
-        error: databaseError
-      } = await supabaseClient
-        .from("products")
-        .insert({
+        error:
+          databaseError
+      } =
+        await supabaseClient
+          .from("products")
+          .insert({
 
-          title,
-          slug,
-          description,
-          price,
+            title:
+              title,
 
-          category:
-            category ||
-            "Digital Product",
+            slug:
+              slug,
 
-          image_url:
-            imageUrl,
+            description:
+              description,
 
-          file_url:
-            fileUrl,
+            price:
+              price,
 
-          featured,
-          published: true,
+            category:
+              category ||
+              "Digital Product",
 
-          created_at:
-            new Date().toISOString()
+            image_url:
+              imageUrl,
 
-        });
+            file_url:
+              fileUrl,
+
+            featured:
+              featured,
+
+            published:
+              true,
+
+            created_at:
+              new Date()
+                .toISOString()
+
+          });
 
 
       if (databaseError) {
 
         await supabaseClient.storage
-          .from("product-images")
+          .from(
+            "product-images"
+          )
           .remove([
             imagePath
           ]);
 
+
         await supabaseClient.storage
-          .from("digital-products")
+          .from(
+            "digital-products"
+          )
           .remove([
             filePath
           ]);
+
 
         throw new Error(
           "Database error: " +
@@ -634,7 +935,9 @@ productForm?.addEventListener(
       productMessage.textContent =
         "✅ Product published successfully!";
 
+
       productForm.reset();
+
 
       await loadProducts();
 
@@ -643,8 +946,10 @@ productForm?.addEventListener(
 
       console.error(error);
 
+
       productMessage.textContent =
-        "❌ " + error.message;
+        "❌ " +
+        error.message;
 
     }
 
@@ -659,34 +964,45 @@ productForm?.addEventListener(
 async function loadProducts() {
 
   if (!adminProducts) {
+
     return;
+
   }
+
 
   adminProducts.innerHTML =
     "<p>Loading products...</p>";
+
 
   try {
 
     const {
       data,
       error
-    } = await supabaseClient
-      .from("products")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
+    } =
+      await supabaseClient
+        .from("products")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:
+              false
+          }
+        );
 
 
     if (error) {
+
       throw error;
+
     }
 
 
-    if (!data?.length) {
+    if (
+      !data ||
+      data.length === 0
+    ) {
 
       adminProducts.innerHTML =
         "<p>No products yet.</p>";
@@ -697,23 +1013,28 @@ async function loadProducts() {
 
 
     adminProducts.innerHTML =
-      data.map(product => `
+      data.map(
+        product => `
 
-        <div style="
-          display:flex;
-          gap:20px;
-          margin-bottom:20px;
-          padding:15px;
-          border:1px solid #ddd;
-          border-radius:12px;
-        ">
+        <div
+          style="
+            display:flex;
+            gap:20px;
+            margin-bottom:20px;
+            padding:15px;
+            border:1px solid #ddd;
+            border-radius:12px;
+          "
+        >
 
           <img
             src="${
               product.image_url ||
               "https://via.placeholder.com/400x250?text=No+Image"
             }"
-            alt="${escapeHTML(product.title)}"
+            alt="${escapeHTML(
+              product.title
+            )}"
             style="
               width:180px;
               height:120px;
@@ -722,23 +1043,30 @@ async function loadProducts() {
             "
           >
 
+
           <div>
 
             <h3>
-              ${escapeHTML(product.title)}
+              ${escapeHTML(
+                product.title
+              )}
             </h3>
+
 
             <p>
               ${escapeHTML(
-                product.description || ""
+                product.description ||
+                ""
               )}
             </p>
+
 
             <strong>
               $${Number(
                 product.price || 0
               ).toFixed(2)}
             </strong>
+
 
             <p>
               ${
@@ -748,17 +1076,24 @@ async function loadProducts() {
               }
             </p>
 
+
             <button
-              onclick="deleteProduct(${product.id})"
+              onclick="
+                deleteProduct(
+                  ${product.id}
+                )
+              "
             >
               Delete
             </button>
+
 
           </div>
 
         </div>
 
-      `).join("");
+      `
+      ).join("");
 
 
   } catch (error) {
@@ -767,6 +1102,7 @@ async function loadProducts() {
       "Products error:",
       error
     );
+
 
     adminProducts.innerHTML =
       "<p>❌ " +
@@ -787,8 +1123,11 @@ async function loadProducts() {
 async function loadOrders() {
 
   if (!adminOrders) {
+
     return;
+
   }
+
 
   adminOrders.innerHTML =
     "<p>⏳ Loading orders...</p>";
@@ -799,30 +1138,40 @@ async function loadOrders() {
     const {
       data: orders,
       error
-    } = await supabaseClient
-      .from("orders")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
+    } =
+      await supabaseClient
+        .from("orders")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:
+              false
+          }
+        );
 
 
     if (error) {
+
       throw error;
+
     }
 
 
-    if (!orders?.length) {
+    if (
+      !orders ||
+      orders.length === 0
+    ) {
 
       adminOrders.innerHTML = `
-        <div style="
-          padding:20px;
-          border-radius:12px;
-          background:#f5f5f5;
-        ">
+
+        <div
+          style="
+            padding:20px;
+            border-radius:12px;
+            background:#f5f5f5;
+          "
+        >
 
           <h3>
             No orders received yet.
@@ -833,6 +1182,7 @@ async function loadOrders() {
           </p>
 
         </div>
+
       `;
 
       return;
@@ -841,189 +1191,238 @@ async function loadOrders() {
 
 
     adminOrders.innerHTML =
-      orders.map(order => {
+      orders.map(
+        order => {
 
-        const orderId =
-          order.order_id ??
-          order.id ??
-          "N/A";
-
-        const customerName =
-          order.customer_name ??
-          order.name ??
-          "N/A";
-
-        const customerEmail =
-          order.customer_email ??
-          order.email ??
-          "N/A";
-
-        const amount =
-          order.amount ??
-          order.total_amount ??
-          order.price ??
-          0;
-
-        const paymentStatus =
-          order.payment_status ??
-          "pending";
-
-        const transactionId =
-          order.transaction_id ??
-          order.payment_reference ??
-          "Not provided";
-
-        const orderStatus =
-          order.order_status ??
-          order.status ??
-          "pending";
-
-        const productName =
-          order.product_name ??
-          order.product_title ??
-          "Digital Product";
-
-        const paymentMethod =
-          order.payment_method ??
-          "N/A";
-
-        const createdAt =
-          order.created_at
-            ? new Date(
-                order.created_at
-              ).toLocaleString()
-            : "N/A";
+          const orderId =
+            order.order_id ??
+            order.id ??
+            "N/A";
 
 
-        const isPaid =
-          String(
-            paymentStatus
-          ).toLowerCase() === "paid";
+          const customerName =
+            order.customer_name ??
+            order.name ??
+            "N/A";
 
 
-        return `
-
-          <div style="
-            border:1px solid #ddd;
-            border-radius:16px;
-            padding:20px;
-            margin-bottom:20px;
-            background:#fff;
-            box-shadow:0 4px 15px rgba(0,0,0,.06);
-          ">
-
-            <h3>
-              🧾 Order #${escapeHTML(
-                orderId
-              )}
-            </h3>
+          const customerEmail =
+            order.customer_email ??
+            order.email ??
+            "N/A";
 
 
-            <p>
-              <strong>Customer:</strong>
-              ${escapeHTML(
-                customerName
-              )}
-            </p>
+          const amount =
+            order.amount ??
+            order.total_amount ??
+            order.price ??
+            0;
 
 
-            <p>
-              <strong>Email:</strong>
-              ${escapeHTML(
-                customerEmail
-              )}
-            </p>
+          const paymentStatus =
+            order.payment_status ??
+            "pending";
 
 
-            <p>
-              <strong>Product:</strong>
-              ${escapeHTML(
-                productName
-              )}
-            </p>
+          const transactionId =
+            order.transaction_id ??
+            order.payment_reference ??
+            "Not provided";
 
 
-            <p>
-              <strong>Amount:</strong>
-              $${Number(
-                amount
-              ).toFixed(2)}
-            </p>
+          const orderStatus =
+            order.order_status ??
+            order.status ??
+            "pending";
 
 
-            <p>
-              <strong>Payment Method:</strong>
-              ${escapeHTML(
-                paymentMethod
-              )}
-            </p>
+          const productName =
+            order.product_name ??
+            order.product_title ??
+            "Digital Product";
 
 
-            <p>
-              <strong>Transaction ID:</strong>
-              ${escapeHTML(
-                transactionId
-              )}
-            </p>
+          const paymentMethod =
+            order.payment_method ??
+            "N/A";
 
 
-            <p>
-              <strong>Payment:</strong>
-              ${
-                isPaid
-                  ? "🟢 Paid"
-                  : "🟡 " +
-                    escapeHTML(
-                      paymentStatus
-                    )
-              }
-            </p>
+          const createdAt =
+            order.created_at
+              ? new Date(
+                  order.created_at
+                ).toLocaleString()
+              : "N/A";
 
 
-            <p>
-              <strong>Order Status:</strong>
-              ${escapeHTML(
-                orderStatus
-              )}
-            </p>
+          const paid =
+            String(
+              paymentStatus
+            ).toLowerCase() ===
+            "paid";
 
 
-            <p>
-              <strong>Date:</strong>
-              ${escapeHTML(
-                createdAt
-              )}
-            </p>
+          return `
+
+            <div
+              style="
+                border:1px solid #ddd;
+                border-radius:16px;
+                padding:20px;
+                margin-bottom:20px;
+                background:#fff;
+                box-shadow:
+                  0 4px 15px
+                  rgba(0,0,0,.06);
+              "
+            >
+
+              <h3>
+                🧾 Order #${escapeHTML(
+                  orderId
+                )}
+              </h3>
 
 
-            <details>
+              <p>
+                <strong>
+                  Customer:
+                </strong>
 
-              <summary>
-                View complete order data
-              </summary>
+                ${escapeHTML(
+                  customerName
+                )}
+              </p>
 
-              <pre style="
-                white-space:pre-wrap;
-                word-break:break-word;
-                background:#f5f5f5;
-                padding:12px;
-                border-radius:8px;
-                font-size:12px;
-              ">${escapeHTML(
-                JSON.stringify(
-                  order,
-                  null,
-                  2
-                )
-              )}</pre>
 
-            </details>
+              <p>
+                <strong>
+                  Email:
+                </strong>
 
-          </div>
+                ${escapeHTML(
+                  customerEmail
+                )}
+              </p>
 
-        `;
 
-      }).join("");
+              <p>
+                <strong>
+                  Product:
+                </strong>
+
+                ${escapeHTML(
+                  productName
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Amount:
+                </strong>
+
+                $${Number(
+                  amount
+                ).toFixed(2)}
+              </p>
+
+
+              <p>
+                <strong>
+                  Payment Method:
+                </strong>
+
+                ${escapeHTML(
+                  paymentMethod
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Transaction ID:
+                </strong>
+
+                ${escapeHTML(
+                  transactionId
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Payment:
+                </strong>
+
+                ${
+                  paid
+                    ? "🟢 Paid"
+                    : "🟡 " +
+                      escapeHTML(
+                        paymentStatus
+                      )
+                }
+
+              </p>
+
+
+              <p>
+                <strong>
+                  Order Status:
+                </strong>
+
+                ${escapeHTML(
+                  orderStatus
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Date:
+                </strong>
+
+                ${escapeHTML(
+                  createdAt
+                )}
+
+              </p>
+
+
+              <details>
+
+                <summary>
+                  View complete order data
+                </summary>
+
+
+                <pre
+                  style="
+                    white-space:pre-wrap;
+                    word-break:break-word;
+                    background:#f5f5f5;
+                    padding:12px;
+                    border-radius:8px;
+                    font-size:12px;
+                  "
+                >${escapeHTML(
+                  JSON.stringify(
+                    order,
+                    null,
+                    2
+                  )
+                )}</pre>
+
+              </details>
+
+
+            </div>
+
+          `;
+
+        }
+      ).join("");
 
 
   } catch (error) {
@@ -1036,16 +1435,19 @@ async function loadOrders() {
 
     adminOrders.innerHTML = `
 
-      <div style="
-        padding:20px;
-        border-radius:12px;
-        background:#fff0f0;
-        border:1px solid #ffcccc;
-      ">
+      <div
+        style="
+          padding:20px;
+          border-radius:12px;
+          background:#fff0f0;
+          border:1px solid #ffcccc;
+        "
+      >
 
         <h3>
           ❌ Could not load orders
         </h3>
+
 
         <p>
           ${escapeHTML(
@@ -1073,59 +1475,77 @@ async function deleteProduct(id) {
       "Delete this product?"
     )
   ) {
+
     return;
+
   }
 
 
-  const {
-    error
-  } = await supabaseClient
-    .from("products")
-    .delete()
-    .eq(
-      "id",
-      id
-    );
+  try {
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("products")
+        .delete()
+        .eq(
+          "id",
+          id
+        );
 
 
-  if (error) {
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    await loadProducts();
+
+
+  } catch (error) {
 
     alert(
       error.message
     );
 
-    return;
-
   }
-
-
-  await loadProducts();
 
 }
 
 
 // =====================================
-// REFRESH BUTTONS
+// REFRESH PRODUCTS
 // =====================================
 
 refreshProducts?.addEventListener(
   "click",
   async () => {
+
     await loadProducts();
-  }
-);
 
-
-refreshOrders?.addEventListener(
-  "click",
-  async () => {
-    await loadOrders();
   }
 );
 
 
 // =====================================
-// HELPERS
+// REFRESH ORDERS
+// =====================================
+
+refreshOrders?.addEventListener(
+  "click",
+  async () => {
+
+    await loadOrders();
+
+  }
+);
+
+
+// =====================================
+// FILE NAME
 // =====================================
 
 function cleanFileName(name) {
@@ -1143,6 +1563,10 @@ function cleanFileName(name) {
 }
 
 
+// =====================================
+// SLUG
+// =====================================
+
 function createSlug(text) {
 
   return text
@@ -1159,6 +1583,10 @@ function createSlug(text) {
 
 }
 
+
+// =====================================
+// ESCAPE HTML
+// =====================================
 
 function escapeHTML(value) {
 
