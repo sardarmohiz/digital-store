@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>My Order - Digital Store</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+  <script src="config.js"></script>
+
+</head>
+
+
+<body>
+
+
+  <!-- HEADER -->
+
+  <header class="store-header">
+
+    <div class="store-logo">
+      Digital Store
+    </div>
+
+    <a href="index.html">
+      Home
+    </a>
+
+  </header>
+
+
+
+  <!-- MAIN -->
+
+  <main
+    style="
+      max-width:800px;
+      margin:50px auto;
+      padding:20px;
+    "
+  >
+
+
+    <!-- LOADING -->
+
+    <div
+      id="loading"
+      style="
+        text-align:center;
+        padding:50px;
+      "
+    >
+
+      Checking your order...
+
+    </div>
+
+
+
+    <!-- ORDER -->
+
+    <div
+      id="orderBox"
+      style="display:none;"
+    >
+
+      <div
+        style="
+          padding:30px;
+          border:1px solid #ddd;
+          border-radius:18px;
+        "
+      >
+
+
+        <h1>
+          Your Order
+        </h1>
+
+
+        <p>
+
+          Order ID:
+
+          <strong id="orderId">
+            -
+          </strong>
+
+        </p>
+
+
+
+        <!-- PRODUCT -->
+
+        <div
+          style="
+            display:flex;
+            gap:20px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin:25px 0;
+          "
+        >
+
+          <img
+            id="productImage"
+            src=""
+            alt="Product"
+            style="
+              width:180px;
+              height:120px;
+              object-fit:cover;
+              border-radius:12px;
+            "
+          >
+
+
+          <div>
+
+            <h2 id="productTitle">
+              Product
+            </h2>
+
+
+            <p id="productPrice">
+              $0.00
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STATUS -->
+
+        <div
+          id="pendingBox"
+          style="
+            padding:20px;
+            background:#fff7ed;
+            border-radius:12px;
+          "
+        >
+
+          <h2>
+            🟡 Payment Verification Pending
+          </h2>
+
+
+          <p>
+            Your order has been received.
+          </p>
+
+
+          <p>
+            We will verify your payment.
+          </p>
+
+
+        </div>
+
+
+
+        <!-- PAID -->
+
+        <div
+          id="paidBox"
+          style="
+            display:none;
+            padding:25px;
+            background:#ecfdf5;
+            border-radius:12px;
+          "
+        >
+
+          <h2>
+            ✅ Payment Verified
+          </h2>
+
+
+          <p>
+            Your payment has been confirmed.
+          </p>
+
+
+          <p>
+            Your digital product is ready.
+          </p>
+
+
+          <button
+            id="downloadButton"
+            type="button"
+            style="
+              padding:15px 25px;
+              margin-top:15px;
+              cursor:pointer;
+            "
+          >
+
+            📥 Download Product
+
+          </button>
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ERROR -->
+
+    <div
+      id="errorBox"
+      style="
+        display:none;
+        text-align:center;
+        padding:50px;
+      "
+    >
+
+      <h2>
+        ❌ Order Not Found
+      </h2>
+
+
+      <p id="errorMessage">
+        We could not find your order.
+      </p>
+
+
+      <a href="index.html">
+        ← Back to Store
+      </a>
+
+    </div>
+
+
+  </main>
+
+
+
+  <script>
+
+
+    // ==================================
+    // LOAD ORDER
+    // ==================================
+
+    async function loadOrder() {
+
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const orderId =
+        params.get("id");
+
+
+      if (!orderId) {
+
+        showError(
+          "Order ID is missing."
+        );
+
+        return;
+
+      }
+
+
+
+      try {
+
+
+        const {
+          data: order,
+          error
+        } =
+          await supabaseClient
+            .from("orders")
+            .select("*")
+            .eq("order_id", orderId)
+            .single();
+
+
+        if (error) {
+
+          throw error;
+
+        }
+
+
+        if (!order) {
+
+          showError(
+            "Order not found."
+          );
+
+          return;
+
+        }
+
+
+
+        // ==================================
+        // ORDER ID
+        // ==================================
+
+        document.getElementById(
+          "orderId"
+        ).textContent =
+          order.order_id;
+
+
+
+        // ==================================
+        // PRODUCT
+        // ==================================
+
+        const {
+          data: product,
+          error: productError
+        } =
+          await supabaseClient
+            .from("products")
+            .select("*")
+            .eq("id", order.product_id)
+            .single();
+
+
+        if (productError) {
+
+          throw productError;
+
+        }
+
+
+        if (product) {
+
+
+          document.getElementById(
+            "productTitle"
+          ).textContent =
+            product.title;
+
+
+          document.getElementById(
+            "productPrice"
+          ).textContent =
+            "$" +
+            Number(
+              product.price || 0
+            ).toFixed(2);
+
+
+          document.getElementById(
+            "productImage"
+          ).src =
+            product.image_url ||
+            "https://via.placeholder.com/400x250?text=Product";
+
+        }
+
+
+
+        // ==================================
+        // PAYMENT STATUS
+        // ==================================
+
+        const paid =
+          order.payment_status ===
+          "paid";
+
+
+        if (paid) {
+
+          document.getElementById(
+            "pendingBox"
+          ).style.display =
+            "none";
+
+
+          document.getElementById(
+            "paidBox"
+          ).style.display =
+            "block";
+
+
+          document.getElementById(
+            "downloadButton"
+          ).onclick =
+            function () {
+
+              downloadProduct(
+                product
+              );
+
+            };
+
+        } else {
+
+          document.getElementById(
+            "pendingBox"
+          ).style.display =
+            "block";
+
+
+          document.getElementById(
+            "paidBox"
+          ).style.display =
+            "none";
+
+        }
+
+
+
+        // ==================================
+        // SHOW
+        // ==================================
+
+        document.getElementById(
+          "loading"
+        ).style.display =
+          "none";
+
+
+        document.getElementById(
+          "orderBox"
+        ).style.display =
+          "block";
+
+
+      } catch (error) {
+
+
+        console.error(
+          error
+        );
+
+
+        showError(
+          error.message
+        );
+
+      }
+
+    }
+
+
+
+    // ==================================
+    // DOWNLOAD
+    // ==================================
+
+    async function downloadProduct(
+      product
+    ) {
+
+
+      if (
+        !product ||
+        !product.file_url
+      ) {
+
+        alert(
+          "Download file is not available."
+        );
+
+        return;
+
+      }
+
+
+      // Open the stored file
+
+      window.open(
+        product.file_url,
+        "_blank"
+      );
+
+    }
+
+
+
+    // ==================================
+    // ERROR
+    // ==================================
+
+    function showError(
+      message
+    ) {
+
+
+      document.getElementById(
+        "loading"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "orderBox"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "errorBox"
+      ).style.display =
+        "block";
+
+
+      document.getElementById(
+        "errorMessage"
+      ).textContent =
+        message ||
+        "Order not found.";
+
+    }
+
+
+
+    // START
+
+    loadOrder();
+
+  </script>
+
+
+</body>
+
+</html>
