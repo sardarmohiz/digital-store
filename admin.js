@@ -23,21 +23,20 @@ const productMessage =
 const adminProducts =
   document.getElementById("adminProducts");
 
+const adminOrders =
+  document.getElementById("adminOrders");
+
 const logoutBtn =
   document.getElementById("logoutBtn");
 
 const refreshProducts =
   document.getElementById("refreshProducts");
 
-
-// =====================================
-// PAYMENT SETTINGS ELEMENTS
-// =====================================
+const refreshOrders =
+  document.getElementById("refreshOrders");
 
 const paymentSettingsForm =
-  document.getElementById(
-    "paymentSettingsForm"
-  );
+  document.getElementById("paymentSettingsForm");
 
 const paymentSettingsMessage =
   document.getElementById(
@@ -46,7 +45,7 @@ const paymentSettingsMessage =
 
 
 // =====================================
-// CHECK LOGIN
+// START
 // =====================================
 
 document.addEventListener(
@@ -58,6 +57,10 @@ document.addEventListener(
   }
 );
 
+
+// =====================================
+// CHECK LOGIN
+// =====================================
 
 async function checkLogin() {
 
@@ -204,11 +207,240 @@ async function showDashboard() {
   }
 
 
-  await loadProducts();
-
   await loadPaymentSettings();
 
+  await loadProducts();
+
+  await loadOrders();
+
 }
+
+
+// =====================================
+// PAYMENT SETTINGS
+// =====================================
+
+async function loadPaymentSettings() {
+
+  if (
+    !paymentSettingsForm
+  ) {
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("payment_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+
+
+  if (error) {
+
+    paymentSettingsMessage.textContent =
+      "❌ " +
+      error.message;
+
+    return;
+
+  }
+
+
+  if (!data) {
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "easypaisaName"
+  ).value =
+    data.easypaisa_name || "";
+
+
+  document.getElementById(
+    "easypaisaNumber"
+  ).value =
+    data.easypaisa_number || "";
+
+
+  document.getElementById(
+    "jazzcashName"
+  ).value =
+    data.jazzcash_name || "";
+
+
+  document.getElementById(
+    "jazzcashNumber"
+  ).value =
+    data.jazzcash_number || "";
+
+}
+
+
+// =====================================
+// SAVE PAYMENT SETTINGS
+// =====================================
+
+paymentSettingsForm?.addEventListener(
+  "submit",
+  async (e) => {
+
+    e.preventDefault();
+
+
+    paymentSettingsMessage.textContent =
+      "Saving...";
+
+
+    try {
+
+      const easypaisaName =
+        document
+          .getElementById(
+            "easypaisaName"
+          )
+          .value
+          .trim();
+
+
+      const easypaisaNumber =
+        document
+          .getElementById(
+            "easypaisaNumber"
+          )
+          .value
+          .trim();
+
+
+      const jazzcashName =
+        document
+          .getElementById(
+            "jazzcashName"
+          )
+          .value
+          .trim();
+
+
+      const jazzcashNumber =
+        document
+          .getElementById(
+            "jazzcashNumber"
+          )
+          .value
+          .trim();
+
+
+      const {
+        data: existing,
+        error: findError
+      } =
+        await supabaseClient
+          .from("payment_settings")
+          .select("id")
+          .limit(1)
+          .maybeSingle();
+
+
+      if (findError) {
+
+        throw findError;
+
+      }
+
+
+      let result;
+
+
+      if (existing) {
+
+        result =
+          await supabaseClient
+            .from(
+              "payment_settings"
+            )
+            .update({
+
+              easypaisa_name:
+                easypaisaName,
+
+              easypaisa_number:
+                easypaisaNumber,
+
+              jazzcash_name:
+                jazzcashName,
+
+              jazzcash_number:
+                jazzcashNumber,
+
+              updated_at:
+                new Date()
+                  .toISOString()
+
+            })
+            .eq(
+              "id",
+              existing.id
+            );
+
+      } else {
+
+        result =
+          await supabaseClient
+            .from(
+              "payment_settings"
+            )
+            .insert({
+
+              easypaisa_name:
+                easypaisaName,
+
+              easypaisa_number:
+                easypaisaNumber,
+
+              jazzcash_name:
+                jazzcashName,
+
+              jazzcash_number:
+                jazzcashNumber,
+
+              updated_at:
+                new Date()
+                  .toISOString()
+
+            });
+
+      }
+
+
+      if (result.error) {
+
+        throw result.error;
+
+      }
+
+
+      paymentSettingsMessage.textContent =
+        "✅ Payment details saved!";
+
+    } catch (error) {
+
+      paymentSettingsMessage.textContent =
+        "❌ " +
+        error.message;
+
+    }
+
+  }
+);
 
 
 // =====================================
@@ -230,14 +462,18 @@ productForm?.addEventListener(
 
       const title =
         document
-          .getElementById("productTitle")
+          .getElementById(
+            "productTitle"
+          )
           .value
           .trim();
 
 
       const description =
         document
-          .getElementById("productDescription")
+          .getElementById(
+            "productDescription"
+          )
           .value
           .trim();
 
@@ -245,21 +481,27 @@ productForm?.addEventListener(
       const price =
         Number(
           document
-            .getElementById("productPrice")
+            .getElementById(
+              "productPrice"
+            )
             .value
         );
 
 
       const category =
         document
-          .getElementById("productCategory")
+          .getElementById(
+            "productCategory"
+          )
           .value
           .trim();
 
 
       const featured =
         document
-          .getElementById("featuredProduct")
+          .getElementById(
+            "featuredProduct"
+          )
           .checked;
 
 
@@ -317,10 +559,6 @@ productForm?.addEventListener(
       }
 
 
-      // =================================
-      // UNIQUE ID
-      // =================================
-
       const unique =
         Date.now() +
         "-" +
@@ -330,7 +568,7 @@ productForm?.addEventListener(
 
 
       // =================================
-      // IMAGE
+      // IMAGE UPLOAD
       // =================================
 
       const imageFile =
@@ -469,7 +707,7 @@ productForm?.addEventListener(
 
 
       // =================================
-      // SLUG
+      // SAVE PRODUCT
       // =================================
 
       const slug =
@@ -477,10 +715,6 @@ productForm?.addEventListener(
         "-" +
         Date.now();
 
-
-      // =================================
-      // SAVE PRODUCT
-      // =================================
 
       const {
         error:
@@ -639,68 +873,356 @@ async function loadProducts() {
       .map(
         product => `
 
-          <div
-            class="admin-product"
+        <div
+          class="admin-product"
+          style="
+            display:flex;
+            gap:20px;
+            margin-bottom:20px;
+            padding:15px;
+            border:1px solid #ddd;
+            border-radius:12px;
+          "
+        >
+
+          <img
+            src="${
+              product.image_url ||
+              "https://via.placeholder.com/400x250?text=No+Image"
+            }"
+            alt="${escapeHTML(
+              product.title
+            )}"
+            style="
+              width:180px;
+              height:120px;
+              object-fit:cover;
+              border-radius:10px;
+            "
           >
 
-            <img
-              src="${
-                product.image_url ||
-                "https://via.placeholder.com/400x250?text=No+Image"
-              }"
-              alt="${escapeHTML(
+          <div>
+
+            <h3>
+              ${escapeHTML(
                 product.title
-              )}"
-              style="
-                width:200px;
-                height:130px;
-                object-fit:cover;
-                border-radius:10px;
-              "
+              )}
+            </h3>
+
+            <p>
+              ${escapeHTML(
+                product.description ||
+                ""
+              )}
+            </p>
+
+            <strong>
+              $${Number(
+                product.price || 0
+              ).toFixed(2)}
+            </strong>
+
+            <p>
+              ${
+                product.published
+                  ? "🟢 Published"
+                  : "🟡 Draft"
+              }
+            </p>
+
+            <button
+              onclick="deleteProduct(
+                ${product.id}
+              )"
             >
-
-            <div>
-
-              <h3>
-                ${escapeHTML(
-                  product.title
-                )}
-              </h3>
-
-              <p>
-                ${escapeHTML(
-                  product.description ||
-                  ""
-                )}
-              </p>
-
-              <strong>
-                $${Number(
-                  product.price || 0
-                ).toFixed(2)}
-              </strong>
-
-              <p>
-                ${
-                  product.published
-                    ? "🟢 Published"
-                    : "🟡 Draft"
-                }
-              </p>
-
-              <button
-                onclick="deleteProduct(
-                  ${product.id}
-                )"
-              >
-                Delete
-              </button>
-
-            </div>
+              Delete
+            </button>
 
           </div>
 
-        `
+        </div>
+
+      `
+      )
+      .join("");
+
+}
+
+
+// =====================================
+// LOAD ORDERS
+// =====================================
+
+async function loadOrders() {
+
+  if (!adminOrders) {
+
+    return;
+
+  }
+
+
+  adminOrders.innerHTML =
+    "<p>Loading orders...</p>";
+
+
+  const {
+    data: orders,
+    error
+  } =
+    await supabaseClient
+      .from("orders")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:
+            false
+        }
+      );
+
+
+  if (error) {
+
+    adminOrders.innerHTML =
+      "<p>❌ " +
+      escapeHTML(
+        error.message
+      ) +
+      "</p>";
+
+    return;
+
+  }
+
+
+  if (
+    !orders ||
+    orders.length === 0
+  ) {
+
+    adminOrders.innerHTML =
+      "<p>No orders received yet.</p>";
+
+    return;
+
+  }
+
+
+  // =================================
+  // GET PRODUCT NAMES
+  // =================================
+
+  const productIds =
+    [
+      ...new Set(
+        orders
+          .map(
+            order =>
+              order.product_id
+          )
+          .filter(
+            id =>
+              id !== null &&
+              id !== undefined
+          )
+      )
+    ];
+
+
+  let products = [];
+
+
+  if (
+    productIds.length > 0
+  ) {
+
+    const {
+      data
+    } =
+      await supabaseClient
+        .from("products")
+        .select(
+          "id,title"
+        )
+        .in(
+          "id",
+          productIds
+        );
+
+
+    products =
+      data || [];
+
+  }
+
+
+  const productMap =
+    {};
+
+
+  products.forEach(
+    product => {
+
+      productMap[
+        product.id
+      ] =
+        product.title;
+
+    }
+  );
+
+
+
+  // =================================
+  // DISPLAY ORDERS
+  // =================================
+
+  adminOrders.innerHTML =
+    orders
+      .map(
+        order => {
+
+
+          const productName =
+            productMap[
+              order.product_id
+            ] ||
+            "Product";
+
+
+          const status =
+            order.payment_status ||
+            "pending";
+
+
+          return `
+
+            <div
+              style="
+                border:1px solid #ddd;
+                border-radius:14px;
+                padding:20px;
+                margin-bottom:20px;
+              "
+            >
+
+              <h3>
+                🧾 Order ${
+                  escapeHTML(
+                    order.order_id ||
+                    order.id
+                  )
+                }
+              </h3>
+
+
+              <p>
+                <strong>
+                  Customer:
+                </strong>
+
+                ${escapeHTML(
+                  order.customer_name ||
+                  "N/A"
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Email:
+                </strong>
+
+                ${escapeHTML(
+                  order.customer_email ||
+                  "N/A"
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Product:
+                </strong>
+
+                ${escapeHTML(
+                  productName
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Amount:
+                </strong>
+
+                $${Number(
+                  order.amount || 0
+                ).toFixed(2)}
+              </p>
+
+
+              <p>
+                <strong>
+                  Transaction ID:
+                </strong>
+
+                ${escapeHTML(
+                  order.transaction_id ||
+                  "Not provided"
+                )}
+              </p>
+
+
+              <p>
+                <strong>
+                  Payment:
+                </strong>
+
+                ${
+                  status === "paid"
+                    ? "🟢 Paid"
+                    : "🟡 Pending"
+                }
+
+              </p>
+
+
+              <p>
+                <strong>
+                  Order Status:
+                </strong>
+
+                ${escapeHTML(
+                  order.order_status ||
+                  "pending"
+                )}
+
+              </p>
+
+
+              <p>
+                <strong>
+                  Date:
+                </strong>
+
+                ${
+                  order.created_at
+                    ? new Date(
+                        order.created_at
+                      ).toLocaleString()
+                    : "N/A"
+                }
+
+              </p>
+
+
+            </div>
+
+          `;
+
+        }
       )
       .join("");
 
@@ -711,7 +1233,9 @@ async function loadProducts() {
 // DELETE PRODUCT
 // =====================================
 
-async function deleteProduct(id) {
+async function deleteProduct(
+  id
+) {
 
   if (
     !confirm(
@@ -753,265 +1277,18 @@ async function deleteProduct(id) {
 
 
 // =====================================
-// PAYMENT SETTINGS
-// =====================================
-
-async function loadPaymentSettings() {
-
-  if (
-    !paymentSettingsForm
-  ) {
-
-    return;
-
-  }
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("payment_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-
-
-  if (error) {
-
-    paymentSettingsMessage.textContent =
-      "❌ " +
-      error.message;
-
-    return;
-
-  }
-
-
-  if (!data) {
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "easypaisaName"
-  ).value =
-    data.easypaisa_name ||
-    "";
-
-
-  document.getElementById(
-    "easypaisaNumber"
-  ).value =
-    data.easypaisa_number ||
-    "";
-
-
-  document.getElementById(
-    "jazzcashName"
-  ).value =
-    data.jazzcash_name ||
-    "";
-
-
-  document.getElementById(
-    "jazzcashNumber"
-  ).value =
-    data.jazzcash_number ||
-    "";
-
-}
-
-
-// =====================================
-// SAVE PAYMENT SETTINGS
-// =====================================
-
-paymentSettingsForm?.addEventListener(
-  "submit",
-  async (e) => {
-
-    e.preventDefault();
-
-
-    paymentSettingsMessage.textContent =
-      "Saving...";
-
-
-    const easypaisaName =
-      document
-        .getElementById(
-          "easypaisaName"
-        )
-        .value
-        .trim();
-
-
-    const easypaisaNumber =
-      document
-        .getElementById(
-          "easypaisaNumber"
-        )
-        .value
-        .trim();
-
-
-    const jazzcashName =
-      document
-        .getElementById(
-          "jazzcashName"
-        )
-        .value
-        .trim();
-
-
-    const jazzcashNumber =
-      document
-        .getElementById(
-          "jazzcashNumber"
-        )
-        .value
-        .trim();
-
-
-    try {
-
-
-      // Check existing row
-
-      const {
-        data:
-          existing,
-        error:
-          findError
-      } =
-        await supabaseClient
-          .from("payment_settings")
-          .select("id")
-          .limit(1)
-          .maybeSingle();
-
-
-      if (findError) {
-
-        throw findError;
-
-      }
-
-
-      let result;
-
-
-      // =================================
-      // UPDATE
-      // =================================
-
-      if (existing) {
-
-        result =
-          await supabaseClient
-            .from(
-              "payment_settings"
-            )
-            .update({
-
-              easypaisa_name:
-                easypaisaName,
-
-              easypaisa_number:
-                easypaisaNumber,
-
-              jazzcash_name:
-                jazzcashName,
-
-              jazzcash_number:
-                jazzcashNumber,
-
-              updated_at:
-                new Date()
-                  .toISOString()
-
-            })
-            .eq(
-              "id",
-              existing.id
-            );
-
-      }
-
-
-      // =================================
-      // INSERT
-      // =================================
-
-      else {
-
-        result =
-          await supabaseClient
-            .from(
-              "payment_settings"
-            )
-            .insert({
-
-              easypaisa_name:
-                easypaisaName,
-
-              easypaisa_number:
-                easypaisaNumber,
-
-              jazzcash_name:
-                jazzcashName,
-
-              jazzcash_number:
-                jazzcashNumber,
-
-              updated_at:
-                new Date()
-                  .toISOString()
-
-            });
-
-      }
-
-
-      if (result.error) {
-
-        throw result.error;
-
-      }
-
-
-      paymentSettingsMessage.textContent =
-        "✅ Payment details saved successfully!";
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-
-      paymentSettingsMessage.textContent =
-        "❌ " +
-        error.message;
-
-    }
-
-  }
-);
-
-
-// =====================================
-// REFRESH PRODUCTS
+// REFRESH
 // =====================================
 
 refreshProducts?.addEventListener(
   "click",
   loadProducts
+);
+
+
+refreshOrders?.addEventListener(
+  "click",
+  loadOrders
 );
 
 
