@@ -10,7 +10,7 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>My Order - Digital Store</title>
+  <title>Order Received - Digital Store</title>
 
   <link
     rel="stylesheet"
@@ -28,7 +28,6 @@
 
 <body>
 
-
   <!-- HEADER -->
 
   <header class="store-header">
@@ -37,7 +36,7 @@
       Digital Store
     </div>
 
-    <a href="index.html">
+    <a href="./index.html">
       Home
     </a>
 
@@ -62,11 +61,11 @@
       id="loading"
       style="
         text-align:center;
-        padding:50px;
+        padding:60px 20px;
       "
     >
 
-      Checking your order...
+      Loading your order...
 
     </div>
 
@@ -89,8 +88,13 @@
 
 
         <h1>
-          Your Order
+          ✅ Order Received
         </h1>
+
+
+        <p>
+          Thank you for your order.
+        </p>
 
 
         <p>
@@ -113,17 +117,18 @@
             gap:20px;
             align-items:center;
             flex-wrap:wrap;
-            margin:25px 0;
+            margin:30px 0;
           "
         >
+
 
           <img
             id="productImage"
             src=""
             alt="Product"
             style="
-              width:180px;
-              height:120px;
+              width:200px;
+              height:140px;
               object-fit:cover;
               border-radius:12px;
             "
@@ -137,70 +142,38 @@
             </h2>
 
 
-            <p id="productPrice">
-              $0.00
+            <p>
+              Price:
+              <strong id="productPrice">
+                $0.00
+              </strong>
             </p>
 
           </div>
 
-        </div>
-
-
-
-        <!-- STATUS -->
-
-        <div
-          id="pendingBox"
-          style="
-            padding:20px;
-            background:#fff7ed;
-            border-radius:12px;
-          "
-        >
-
-          <h2>
-            🟡 Payment Verification Pending
-          </h2>
-
-
-          <p>
-            Your order has been received.
-          </p>
-
-
-          <p>
-            We will verify your payment.
-          </p>
-
 
         </div>
 
 
 
-        <!-- PAID -->
+        <!-- DOWNLOAD -->
 
         <div
-          id="paidBox"
           style="
-            display:none;
             padding:25px;
-            background:#ecfdf5;
-            border-radius:12px;
+            background:#f0fdf4;
+            border-radius:14px;
+            text-align:center;
           "
         >
 
           <h2>
-            ✅ Payment Verified
+            📚 Your Digital Product
           </h2>
 
 
           <p>
-            Your payment has been confirmed.
-          </p>
-
-
-          <p>
-            Your digital product is ready.
+            Your product is ready.
           </p>
 
 
@@ -208,18 +181,29 @@
             id="downloadButton"
             type="button"
             style="
-              padding:15px 25px;
-              margin-top:15px;
+              padding:15px 30px;
+              font-size:16px;
               cursor:pointer;
+              border:none;
+              border-radius:10px;
             "
           >
 
-            📥 Download Product
+            📥 Download Book
 
           </button>
 
 
         </div>
+
+
+
+        <br>
+
+
+        <a href="./index.html">
+          ← Back to Store
+        </a>
 
 
       </div>
@@ -235,7 +219,7 @@
       style="
         display:none;
         text-align:center;
-        padding:50px;
+        padding:60px 20px;
       "
     >
 
@@ -249,7 +233,7 @@
       </p>
 
 
-      <a href="index.html">
+      <a href="./index.html">
         ← Back to Store
       </a>
 
@@ -263,9 +247,9 @@
   <script>
 
 
-    // ==================================
+    // =====================================
     // LOAD ORDER
-    // ==================================
+    // =====================================
 
     async function loadOrder() {
 
@@ -295,20 +279,27 @@
       try {
 
 
+        // =================================
+        // GET ORDER
+        // =================================
+
         const {
           data: order,
-          error
+          error: orderError
         } =
           await supabaseClient
             .from("orders")
             .select("*")
-            .eq("order_id", orderId)
+            .eq(
+              "order_id",
+              orderId
+            )
             .single();
 
 
-        if (error) {
+        if (orderError) {
 
-          throw error;
+          throw orderError;
 
         }
 
@@ -325,9 +316,9 @@
 
 
 
-        // ==================================
+        // =================================
         // ORDER ID
-        // ==================================
+        // =================================
 
         document.getElementById(
           "orderId"
@@ -336,9 +327,9 @@
 
 
 
-        // ==================================
-        // PRODUCT
-        // ==================================
+        // =================================
+        // GET PRODUCT
+        // =================================
 
         const {
           data: product,
@@ -347,7 +338,10 @@
           await supabaseClient
             .from("products")
             .select("*")
-            .eq("id", order.product_id)
+            .eq(
+              "id",
+              order.product_id
+            )
             .single();
 
 
@@ -358,88 +352,92 @@
         }
 
 
-        if (product) {
+        if (!product) {
+
+          showError(
+            "Product not found."
+          );
+
+          return;
+
+        }
 
 
-          document.getElementById(
-            "productTitle"
-          ).textContent =
-            product.title;
+
+        // =================================
+        // PRODUCT INFO
+        // =================================
+
+        document.getElementById(
+          "productTitle"
+        ).textContent =
+          product.title;
 
 
-          document.getElementById(
-            "productPrice"
-          ).textContent =
-            "$" +
-            Number(
-              product.price || 0
-            ).toFixed(2);
+        document.getElementById(
+          "productPrice"
+        ).textContent =
+          "$" +
+          Number(
+            product.price || 0
+          ).toFixed(2);
 
 
+        const image =
           document.getElementById(
             "productImage"
-          ).src =
-            product.image_url ||
-            "https://via.placeholder.com/400x250?text=Product";
-
-        }
+          );
 
 
-
-        // ==================================
-        // PAYMENT STATUS
-        // ==================================
-
-        const paid =
-          order.payment_status ===
-          "paid";
+        image.src =
+          product.image_url ||
+          "https://via.placeholder.com/600x400?text=Product";
 
 
-        if (paid) {
-
-          document.getElementById(
-            "pendingBox"
-          ).style.display =
-            "none";
+        image.alt =
+          product.title;
 
 
-          document.getElementById(
-            "paidBox"
-          ).style.display =
-            "block";
 
+        // =================================
+        // DOWNLOAD BUTTON
+        // =================================
 
+        const downloadButton =
           document.getElementById(
             "downloadButton"
-          ).onclick =
-            function () {
+          );
 
-              downloadProduct(
-                product
+
+        downloadButton.onclick =
+          function () {
+
+
+            if (
+              !product.file_url
+            ) {
+
+              alert(
+                "Download file is not available."
               );
 
-            };
+              return;
 
-        } else {
-
-          document.getElementById(
-            "pendingBox"
-          ).style.display =
-            "block";
+            }
 
 
-          document.getElementById(
-            "paidBox"
-          ).style.display =
-            "none";
+            window.open(
+              product.file_url,
+              "_blank"
+            );
 
-        }
+          };
 
 
 
-        // ==================================
-        // SHOW
-        // ==================================
+        // =================================
+        // SHOW ORDER
+        // =================================
 
         document.getElementById(
           "loading"
@@ -457,6 +455,7 @@
 
 
         console.error(
+          "Order error:",
           error
         );
 
@@ -471,43 +470,9 @@
 
 
 
-    // ==================================
-    // DOWNLOAD
-    // ==================================
-
-    async function downloadProduct(
-      product
-    ) {
-
-
-      if (
-        !product ||
-        !product.file_url
-      ) {
-
-        alert(
-          "Download file is not available."
-        );
-
-        return;
-
-      }
-
-
-      // Open the stored file
-
-      window.open(
-        product.file_url,
-        "_blank"
-      );
-
-    }
-
-
-
-    // ==================================
+    // =====================================
     // ERROR
-    // ==================================
+    // =====================================
 
     function showError(
       message
@@ -542,7 +507,9 @@
 
 
 
+    // =====================================
     // START
+    // =====================================
 
     loadOrder();
 
